@@ -1,10 +1,22 @@
 <?php
 class CamImage {
 	private $filename;
+	private $image;
 	private $date;
+	private $height;
+	private $width;
+	private $averagePixelColors;
 	
 	function __construct($filename) {
 		$this->filename = $filename;
+		
+		$this->image = imagecreatefromjpeg($this->getPath());
+		if (!$this->image) {
+			return;
+		}
+		
+		$this->height = imagesy($this->image);
+		$this->width = imagesx($this->image);
 		
 		$this->date = "";
 		if (!empty($this->filename)) {
@@ -33,6 +45,39 @@ class CamImage {
 	public function getPath() {
 		global $SNAPSHOT_DIR_NAME;
 		return $SNAPSHOT_DIR_NAME."/".$this->filename;
+	}
+	
+	public function calculateAveragePixelColors() {
+		$pixelSumRed = 0;
+		$pixelSumGreen = 0;
+		$pixelSumBlue = 0;
+		
+		for ($x = 0; $x < $this->width; $x++) {
+			for ($y = 0; $y < $this->height; $y++) {
+				$rgb = imagecolorat($this->image, $x, $y);
+				$colors = imagecolorsforindex($this->image, $rgb);
+				
+				$pixelSumRed += $colors["red"];
+				$pixelSumGreen += $colors["green"];
+				$pixelSumBlue += $colors["blue"];
+			}
+			
+		}
+		
+		$pixelCount = $this->width * $this->height;
+		
+		$this->averagePixelColors = array();
+		$this->averagePixelColors["red"] = round($pixelSumRed / $pixelCount);
+		$this->averagePixelColors["green"] = round($pixelSumGreen / $pixelCount);
+		$this->averagePixelColors["blue"] = round($pixelSumBlue / $pixelCount);
+	}
+	
+	public function getAveragePixelColors() {
+		if (!$this->averagePixelColor) {
+			$this->calculateAveragePixelColors();
+		}
+		
+		return $this->averagePixelColors;
 	}
 }
 ?>
