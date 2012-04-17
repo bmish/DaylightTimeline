@@ -48,6 +48,11 @@ class CamImage {
 	}
 	
 	public function calculateAveragePixelColors() {
+		$pixelCount = $this->width * $this->height;
+		if ($pixelCount == 0) {
+			return;
+		}
+		
 		$pixelSumRed = 0;
 		$pixelSumGreen = 0;
 		$pixelSumBlue = 0;
@@ -63,8 +68,6 @@ class CamImage {
 			}
 			
 		}
-		
-		$pixelCount = $this->width * $this->height;
 		
 		$this->averagePixelColors = array();
 		$this->averagePixelColors["red"] = round($pixelSumRed / $pixelCount);
