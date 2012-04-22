@@ -50,12 +50,18 @@ function setCamImageFontColor() {
 	$("#camImageHeader").css({"color": "#" + returnOpposite(json.centerCamImage.averagePixelColorHex)})
 }
 
-function drawTimeOnCamImage() {
-	
+function maximizeTimeOnCamImage() {
+	$('#camImage').mousemove(minimizeTimeOnCamImage);
+	$("#camImageHeader").addClass("camImageHeaderFullSize");
+}
+
+function minimizeTimeOnCamImage() {
+	$("#camImageHeader").removeClass("camImageHeaderFullSize");
 }
 
 function prepareCamImageEvents() {
-	$('#camImage').mousedown(drawTimeOnCamImage);
+	$('#camImage').mousedown(maximizeTimeOnCamImage);
+	$('#camImage').mouseup(minimizeTimeOnCamImage);
 }
 
 function init() {
