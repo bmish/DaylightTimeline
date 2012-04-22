@@ -17,6 +17,9 @@ if ($_GET["process"] == "true") {
 	// Start timing.
 	$timeStart = microtime(true);
 	
+	// Remove script execution time limit.
+	set_time_limit(0);
+	
 	// Process new cam images.
 	$processedCount = CamImage::processNewCamImages();
 	
@@ -36,7 +39,7 @@ if ($_GET["process"] == "true") {
 	// Build JSON object.
 	$obj = array();
 	$obj["pastCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Past);
-	$obj["postCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Future);
+	$obj["postCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Post);
 	$obj["duration"] = CamImage::calculateLoadingDuration($timeStart);
 		
 	// Output JSON.

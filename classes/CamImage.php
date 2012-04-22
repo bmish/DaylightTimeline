@@ -248,13 +248,15 @@ class CamImage {
 	}
 	
 	public static function getCamImages($count, $centerDate, $timeDirection) {
-		if ($timeDirection == TimeDirection::Future) {
+		if ($timeDirection == TimeDirection::Post) {
 			$uploadedAtComparator = ">";
+			$order = "ASC";
 		} else {
 			$uploadedAtComparator = "<";
+			$order = "DESC";
 		}
 		
-		$query = "SELECT * FROM camImages WHERE uploadedAt ".$uploadedAtComparator." '".date("Y-m-d H:i:s",$centerDate)."' ORDER BY uploadedAt DESC LIMIT ".$count;
+		$query = "SELECT * FROM camImages WHERE uploadedAt ".$uploadedAtComparator." '".date("Y-m-d H:i:s",$centerDate)."' ORDER BY uploadedAt ".$order." LIMIT ".$count;
 		$result = mysql_query($query);
 		if (!$result || mysql_num_rows($result) == 0) {
 			return null;
@@ -307,6 +309,6 @@ class CamImage {
 class TimeDirection {
     const Past = 0;
     const Now = 2;
-	const Future = 3;
+	const Post = 3;
 }
 ?>

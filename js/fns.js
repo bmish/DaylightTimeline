@@ -23,7 +23,7 @@ function drawDaylight(canvasName, camImages) {
 		}
 	} else {
 		for (var i = 0; i < camImages.length; i++) {
-			ctx.fillStyle = "#" + camImages[camImages.length - i - 1].averagePixelColorHex;
+			ctx.fillStyle = "#" + camImages[i].averagePixelColorHex;
 			ctx.fillRect(i*rectWidth,0,rectWidth,c.height);
 		}
 	}
