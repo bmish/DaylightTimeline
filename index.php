@@ -54,7 +54,7 @@ DB::close();
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title><?php echo $DISPLAY_CAM_TITLE; ?></title>
 <link href="css/style.css" rel="stylesheet" type="text/css">
-<script src="js/jquery-1.7.1.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script src="js/fns.js"></script>
 </head>
 <body>
@@ -74,5 +74,6 @@ DB::close();
 		<span class="fieldHeader">Floor/Facing:</span> <?php echo $DISPLAY_CAM_BUILDING_FLOOR; ?>/<?php echo $DISPLAY_CAM_FACING_DIRECTION; ?><br />
 	</div>
 </div>
+<script>init()</script>
 </body>
 </html>
