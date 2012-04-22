@@ -1,7 +1,6 @@
 <?php
 class CamImage {
 	private $filename;
-	private $image;
 	private $date;
 	private $height;
 	private $width;
@@ -12,7 +11,6 @@ class CamImage {
 		$this->filename = $filename;
 		$this->isProcessed = $isProcessed;
 		
-		$this->image = null;
 		$this->date = 0;
 		$this->height = 0;
 		$this->width = 0;
@@ -21,14 +19,6 @@ class CamImage {
 	
 	public static function fromFile($filename) {
 		$instance = new self($filename, false);
-		
-		$instance->image = imagecreatefromjpeg($instance->getPath());
-		if (!$instance->image) {
-			return;
-		}
-		
-		$instance->height = imagesy($instance->image);
-		$instance->width = imagesx($instance->image);
 		
 		$instance->date = "";
 		if (!empty($instance->filename)) {
@@ -80,19 +70,28 @@ class CamImage {
 	}
 
 	public function calculateAveragePixelColors() {
+		// Load image.
+		$image = imagecreatefromjpeg($this->getPath());
+		if (!$image) {
+			return;
+		}
+		
+		// Calculate dimensions.
+		$this->height = imagesy($image);
+		$this->width = imagesx($image);
 		$pixelCount = $this->width * $this->height;
 		if ($pixelCount == 0) {
 			return;
 		}
 		
+		// Sum pixel colors.
 		$pixelSumRed = 0;
 		$pixelSumGreen = 0;
 		$pixelSumBlue = 0;
-		
 		for ($x = 0; $x < $this->width; $x++) {
 			for ($y = 0; $y < $this->height; $y++) {
-				$rgb = imagecolorat($this->image, $x, $y);
-				$colors = imagecolorsforindex($this->image, $rgb);
+				$rgb = imagecolorat($image, $x, $y);
+				$colors = imagecolorsforindex($image, $rgb);
 				
 				$pixelSumRed += $colors["red"];
 				$pixelSumGreen += $colors["green"];
@@ -100,10 +99,14 @@ class CamImage {
 			}
 		}
 		
+		// Calculate pixel color averages.
 		$this->averagePixelColors = array();
 		$this->averagePixelColors["red"] = round($pixelSumRed / $pixelCount);
 		$this->averagePixelColors["green"] = round($pixelSumGreen / $pixelCount);
 		$this->averagePixelColors["blue"] = round($pixelSumBlue / $pixelCount);
+		
+		// Free image memory.
+		imagedestroy($image);
 	}
 	
 	private static function createNecessaryDirectoriesIfNotExist() {
@@ -128,7 +131,7 @@ class CamImage {
 		foreach ($camImages as $camImage) {
 			$camImage->addToDB();
 			
-			$camImage->finishedProcessing();
+			$camImage->moveToProcessedDirectory();
 		}
 		
 		return count($camImages);
@@ -138,7 +141,7 @@ class CamImage {
 		mysql_query("INSERT INTO camImages (filename, uploadedAt, averagePixelColorHex) VALUES ('".$this->filename."','".$this->getDateTime()."','".$this->getAveragePixelColorHex()."')");
 	}
 	
-	private function finishedProcessing() {
+	private function moveToProcessedDirectory() {
 		$oldPath = $this->getPath();
 		$this->isProcessed = true;
 		$newPath = $this->getPath();
