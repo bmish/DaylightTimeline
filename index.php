@@ -78,11 +78,6 @@ DB::close();
 		<img id="camImage" src="<?php echo $newestCamImage->getPath(); ?>" alt="Latest cam image" title="Latest cam image" />
 		<canvas id="postDaylight" width="400" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 	</div>
-	<div id="pageDescription">
-		<span class="fieldHeader">Time taken:</span> <?php echo $newestCamImage->getDisplayDate(); ?><br />
-		<span class="fieldHeader">Update interval:</span> <?php echo $DISPLAY_CAM_UPDATE_INTERVAL; ?> (requires manual refresh)<br />
-		<span class="fieldHeader">Floor/Facing:</span> <?php echo $DISPLAY_CAM_BUILDING_FLOOR; ?>/<?php echo $DISPLAY_CAM_FACING_DIRECTION; ?><br />
-	</div>
 </div>
 <script>init()</script>
 </body>

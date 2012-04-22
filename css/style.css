@@ -10,13 +10,6 @@
 	text-align: center;
 }
 
-#pageDescription {
-	padding-top: 20px;
-	width: 400px;
-	margin-left: auto;
-	margin-right: auto;
-}
-
 #header {
 	width: 100%;
 	padding-top:1px;
@@ -30,10 +23,6 @@
 
 body {
 	margin: 0;
-}
-
-.fieldHeader {
-	font-weight: bold;
 }
 
 #pastDaylight {
