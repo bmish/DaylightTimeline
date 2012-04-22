@@ -29,7 +29,7 @@ if ($_GET["process"] == "true") {
 	
 	// Build JSON object.
 	$obj = array();
-	$obj["pastCamImages"] = CamImage::getJSONObjectOfNewestCamImages(50);
+	$obj["pastCamImages"] = CamImage::getJSONObjectOfNewestCamImages($IMAGES_PER_CANVAS);
 	$obj["duration"] = CamImage::calculateLoadingDuration($timeStart);
 		
 	// Output JSON.

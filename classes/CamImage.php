@@ -69,7 +69,7 @@ class CamImage {
 		}
 	}
 
-	public function calculateAveragePixelColors() {
+	private function calculateAveragePixelColors() {
 		// Load image.
 		$image = imagecreatefromjpeg($this->getPath());
 		if (!$image) {
@@ -99,14 +99,14 @@ class CamImage {
 			}
 		}
 		
+		// Free image memory.
+		imagedestroy($image);
+		
 		// Calculate pixel color averages.
 		$this->averagePixelColors = array();
 		$this->averagePixelColors["red"] = round($pixelSumRed / $pixelCount);
 		$this->averagePixelColors["green"] = round($pixelSumGreen / $pixelCount);
-		$this->averagePixelColors["blue"] = round($pixelSumBlue / $pixelCount);
-		
-		// Free image memory.
-		imagedestroy($image);
+		$this->averagePixelColors["blue"] = round($pixelSumBlue / $pixelCount);	
 	}
 	
 	private static function createNecessaryDirectoriesIfNotExist() {
@@ -174,7 +174,7 @@ class CamImage {
 		return $camImages;
 	}
 	
-	public function getAveragePixelColors() {
+	private function getAveragePixelColors() {
 		if (!$this->averagePixelColors) {
 			$this->calculateAveragePixelColors();
 		}
@@ -244,7 +244,7 @@ class CamImage {
 		return getimagesize($filePath) !== false;
 	}
 	
-	public static function getNewestCamImages($count) {
+	public static function getNewestCamImages($count = 1) {
 		$result = mysql_query("SELECT * FROM camImages ORDER BY uploadedAt DESC LIMIT ".$count);
 		if (!$result || mysql_num_rows($result) == 0) {
 			return null;
@@ -277,7 +277,7 @@ class CamImage {
 		return $arr;
 	}
 	
-	public static function getJSONObjectOfNewestCamImages($count) {
+	public static function getJSONObjectOfNewestCamImages($count = 1) {
 		$newestCamImages = CamImage::getNewestCamImages($count);
 		$jsonArray = CamImage::jsonSerializeArray($newestCamImages);
 		
