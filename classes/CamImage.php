@@ -153,6 +153,10 @@ class CamImage {
 			return array();
 		}
 		
+		// Don't fail on recoverable corrupt jpeg files thrown by imagecreatefromjpeg().
+		ini_set("gd.jpeg_ignore_warning", 1);
+		
+		// Create cam images from each file.
 		$camImages = array();
 		if ($handle = opendir($SNAPSHOT_UNPROCESSED_DIR_NAME)) {
 		    while (false !== ($entry = readdir($handle))) {
@@ -283,7 +287,7 @@ class CamImage {
 	}
 	
 	public static function calculateLoadingDuration($timeStart) {
-			return round(microtime(true) - $timeStart, 2);
+		return round(microtime(true) - $timeStart, 2);
 	}
 }
 ?>
