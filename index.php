@@ -1,10 +1,52 @@
 <?php
 require_once("config/config.php");
 require_once("classes/CamImage.php");
-require_once("classes/fns.php");
+require_once("classes/DB.php");
 
-$camImages = getCamImages();
-$newestCamImage = getNewestCamImageInArray($camImages);
+// Connect to database.
+DB::connect();
+
+// Run scripts?
+if ($_GET["process"] == "true") {
+	// Start timing.
+	$timeStart = microtime(true);
+	
+	// Process new cam images.
+	$processedCount = CamImage::processNewCamImages();
+	
+	// Build JSON object.
+	$obj = array();
+	$obj["processedCount"] = $processedCount;
+	$obj["duration"] = CamImage::calculateLoadingDuration($timeStart);
+		
+	// Output JSON.
+	CamImage::outputArrayInJSON($obj);
+	
+	exit;
+} elseif ($_GET["json"] == "true") {
+	// Start timing.
+	$timeStart = microtime(true);
+	
+	// Build JSON object.
+	$obj = array();
+	$obj["pastCamImages"] = CamImage::getJSONObjectOfNewestCamImages(50);
+	$obj["duration"] = CamImage::calculateLoadingDuration($timeStart);
+		
+	// Output JSON.
+	CamImage::outputArrayInJSON($obj);
+	
+	exit;
+}
+
+// Get newest cam image to display.
+$newestCamImage = CamImage::getNewestCamImages(1);
+if ($newestCamImage == null) {
+	echo 'No cam images found in database.';
+	exit;
+}
+
+// Close database connection.
+DB::close();
 ?>
 <!DOCTYPE html>
 <html lang="en-US">
