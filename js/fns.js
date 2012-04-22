@@ -17,7 +17,7 @@ function drawPastDaylight() {
 	// Draw rectangle for each image color.
 	for (var i = 0; i < json.pastCamImages.length; i++) {
 		ctx.fillStyle = "#" + json.pastCamImages[i].averagePixelColorHex;
-		ctx.fillRect(c.width - i*rectWidth,0,rectWidth,c.height);
+		ctx.fillRect(c.width - i*rectWidth - 1,0,rectWidth,c.height);
 	}
 }
 

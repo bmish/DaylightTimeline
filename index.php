@@ -64,9 +64,9 @@ DB::close();
 		<div id="pageSubtitle"><a target="_blank" href="http://maps.google.com/?q=<?php echo urlencode($DISPLAY_CAM_LOCATION_ADDR); ?>"><?php echo $DISPLAY_CAM_LOCATION_NAME; ?></a></div>
 	</div>
 	<div id="daylightRow">
-		<canvas id="pastDaylight" width="400" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+		<canvas id="pastDaylight" width="480" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 		<img id="camImage" src="<?php echo $newestCamImage->getPath(); ?>" alt="Latest cam image" title="Latest cam image" />
-		<canvas id="postDaylight" width="400" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+		<canvas id="postDaylight" width="480" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 	</div>
 	<div id="pageDescription">
 		<span class="fieldHeader">Time taken:</span> <?php echo $newestCamImage->getDisplayDate(); ?><br />

@@ -16,9 +16,11 @@ $DISPLAY_CAM_UPDATE_INTERVAL = "30 seconds";
 $DISPLAY_CAM_FACING_DIRECTION = "North";
 $DISPLAY_CAM_BUILDING_FLOOR = "1";
 
+// Technical details.
 $DISPLAY_DATE_FORMAT = "g:i:s a";
-$IMAGES_PER_CANVAS = 50;
+$IMAGES_PER_CANVAS = 480;
 
+$SNAPSHOT_DIR_NAME = "snapshots";
 $SNAPSHOT_UNPROCESSED_DIR_NAME = "snapshots/unprocessed";
 $SNAPSHOT_PROCESSED_DIR_NAME = "snapshots/processed";
 ?>

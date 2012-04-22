@@ -110,8 +110,11 @@ class CamImage {
 	}
 	
 	private static function createNecessaryDirectoriesIfNotExist() {
-		global $SNAPSHOT_UNPROCESSED_DIR_NAME, $SNAPSHOT_PROCESSED_DIR_NAME;
+		global $SNAPSHOT_DIR_NAME, $SNAPSHOT_UNPROCESSED_DIR_NAME, $SNAPSHOT_PROCESSED_DIR_NAME;
 		
+		if (!file_exists($SNAPSHOT_DIR_NAME) ) {
+			mkdir($SNAPSHOT_DIR_NAME, 0777);
+		}
 		if (!file_exists($SNAPSHOT_UNPROCESSED_DIR_NAME) ) {
 			mkdir($SNAPSHOT_UNPROCESSED_DIR_NAME, 0777);
 		}
