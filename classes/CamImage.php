@@ -247,8 +247,15 @@ class CamImage {
 		return getimagesize($filePath) !== false;
 	}
 	
-	public static function getNewestCamImages($count = 1) {
-		$result = mysql_query("SELECT * FROM camImages ORDER BY uploadedAt DESC LIMIT ".$count);
+	public static function getCamImages($count, $centerDate, $timeDirection) {
+		if ($timeDirection == TimeDirection::Future) {
+			$uploadedAtComparator = ">";
+		} else {
+			$uploadedAtComparator = "<";
+		}
+		
+		$query = "SELECT * FROM camImages WHERE uploadedAt ".$uploadedAtComparator." '".date("Y-m-d H:i:s",$centerDate)."' ORDER BY uploadedAt DESC LIMIT ".$count;
+		$result = mysql_query($query);
 		if (!$result || mysql_num_rows($result) == 0) {
 			return null;
 		}
@@ -280,9 +287,9 @@ class CamImage {
 		return $arr;
 	}
 	
-	public static function getJSONObjectOfNewestCamImages($count = 1) {
-		$newestCamImages = CamImage::getNewestCamImages($count);
-		$jsonArray = CamImage::jsonSerializeArray($newestCamImages);
+	public static function getJSONObjectOfCamImages($count, $centerDate, $timeDirection) {
+		$camImages = CamImage::getCamImages($count, $centerDate, $timeDirection);
+		$jsonArray = CamImage::jsonSerializeArray($camImages);
 		
 		return $jsonArray;
 	}
@@ -295,5 +302,11 @@ class CamImage {
 	public static function calculateLoadingDuration($timeStart) {
 		return round(microtime(true) - $timeStart, 2);
 	}
+}
+
+class TimeDirection {
+    const Past = 0;
+    const Now = 2;
+	const Future = 3;
 }
 ?>

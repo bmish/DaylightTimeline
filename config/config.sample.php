@@ -18,7 +18,7 @@ $DISPLAY_CAM_BUILDING_FLOOR = "1";
 
 // Technical details.
 $DISPLAY_DATE_FORMAT = "g:i:s a";
-$IMAGES_PER_CANVAS = 480;
+$IMAGES_PER_CANVAS = 400;
 
 $SNAPSHOT_DIR_NAME = "snapshots";
 $SNAPSHOT_UNPROCESSED_DIR_NAME = "snapshots/unprocessed";

@@ -6,6 +6,12 @@ require_once("classes/DB.php");
 // Connect to database.
 DB::connect();
 
+// Center date?
+$centerDate = strtotime($_GET["date"]);
+if (!$centerDate) {
+	$centerDate = time();
+}
+
 // Run scripts?
 if ($_GET["process"] == "true") {
 	// Start timing.
@@ -29,7 +35,8 @@ if ($_GET["process"] == "true") {
 	
 	// Build JSON object.
 	$obj = array();
-	$obj["pastCamImages"] = CamImage::getJSONObjectOfNewestCamImages($IMAGES_PER_CANVAS);
+	$obj["pastCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Past);
+	$obj["postCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Future);
 	$obj["duration"] = CamImage::calculateLoadingDuration($timeStart);
 		
 	// Output JSON.
@@ -39,7 +46,7 @@ if ($_GET["process"] == "true") {
 }
 
 // Get newest cam image to display.
-$newestCamImage = CamImage::getNewestCamImages(1);
+$newestCamImage = CamImage::getCamImages(1, $centerDate, TimeDirection::Now);
 if ($newestCamImage == null) {
 	echo 'No cam images found in database.';
 	exit;
@@ -64,9 +71,9 @@ DB::close();
 		<div id="pageSubtitle"><a target="_blank" href="http://maps.google.com/?q=<?php echo urlencode($DISPLAY_CAM_LOCATION_ADDR); ?>"><?php echo $DISPLAY_CAM_LOCATION_NAME; ?></a></div>
 	</div>
 	<div id="daylightRow">
-		<canvas id="pastDaylight" width="480" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+		<canvas id="pastDaylight" width="400" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 		<img id="camImage" src="<?php echo $newestCamImage->getPath(); ?>" alt="Latest cam image" title="Latest cam image" />
-		<canvas id="postDaylight" width="480" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+		<canvas id="postDaylight" width="400" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 	</div>
 	<div id="pageDescription">
 		<span class="fieldHeader">Time taken:</span> <?php echo $newestCamImage->getDisplayDate(); ?><br />
