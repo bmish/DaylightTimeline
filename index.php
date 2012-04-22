@@ -38,6 +38,7 @@ if ($_GET["process"] == "true") {
 	
 	// Build JSON object.
 	$obj = array();
+	$obj["centerCamImage"] = CamImage::getJSONObjectOfCamImages(1, $centerDate, TimeDirection::Now);
 	$obj["pastCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Past);
 	$obj["postCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Post);
 	$obj["duration"] = CamImage::calculateLoadingDuration($timeStart);
@@ -75,7 +76,10 @@ DB::close();
 	</div>
 	<div id="daylightRow">
 		<canvas id="pastDaylight" width="400" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
-		<img id="camImage" src="<?php echo $newestCamImage->getPath(); ?>" alt="Latest cam image" title="Latest cam image" />
+		<div id="camImageDiv">
+			<div id="camImageHeader"><?php echo date("g:i a", $newestCamImage->getDate()); ?></div>
+			<img id="camImage" src="<?php echo $newestCamImage->getPath(); ?>" alt="Latest cam image" title="Latest cam image" />
+		</div>
 		<canvas id="postDaylight" width="400" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 	</div>
 </div>

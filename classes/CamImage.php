@@ -291,6 +291,11 @@ class CamImage {
 	
 	public static function getJSONObjectOfCamImages($count, $centerDate, $timeDirection) {
 		$camImages = CamImage::getCamImages($count, $centerDate, $timeDirection);
+		
+		if ($timeDirection == TimeDirection::Now) { // Don't need an array if only getting the current cam image.
+			return $camImages->jsonSerialize();
+		}
+		
 		$jsonArray = CamImage::jsonSerializeArray($camImages);
 		
 		return $jsonArray;
@@ -308,7 +313,7 @@ class CamImage {
 
 class TimeDirection {
     const Past = 0;
-    const Now = 2;
-	const Post = 3;
+    const Now = 1;
+	const Post = 2;
 }
 ?>

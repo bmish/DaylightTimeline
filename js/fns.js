@@ -3,6 +3,8 @@ var json;
 function receivedJSON(data) {
 	json = data;
 	
+	setCamImageFontColor();
+	prepareCamImageEvents();
 	drawDaylight("pastDaylight",json.pastCamImages);
 	drawDaylight("postDaylight",json.postCamImages);
 }
@@ -27,6 +29,33 @@ function drawDaylight(canvasName, camImages) {
 			ctx.fillRect(i*rectWidth,0,rectWidth,c.height);
 		}
 	}
+}
+
+// http://wiki.vyre.com/index.php/JavaScript:_Opposite_colour
+function decimalToHex(decimal) {
+  var hex = decimal.toString(16);
+  if (hex.length == 1) hex = '0' + hex;
+  return hex;
+}
+
+function hexToDecimal(hex) {return parseInt(hex,16);}
+ 
+function returnOpposite(colour) {
+  return decimalToHex(255 - hexToDecimal(colour.substr(0,2))) 
+    + decimalToHex(255 - hexToDecimal(colour.substr(2,2))) 
+    + decimalToHex(255 -  hexToDecimal(colour.substr(4,2)));
+}
+
+function setCamImageFontColor() {
+	$("#camImageHeader").css({"color": "#" + returnOpposite(json.centerCamImage.averagePixelColorHex)})
+}
+
+function drawTimeOnCamImage() {
+	
+}
+
+function prepareCamImageEvents() {
+	$('#camImage').mousedown(drawTimeOnCamImage);
 }
 
 function init() {
