@@ -52,14 +52,17 @@ DB::close();
 		<div id="pageSubtitle"><?php echo $DISPLAY_CAM_LOCATION_NAME; ?></div>
 	</div>
 	<div id="daylightRow">
-		<canvas id="pastDaylight" width="400" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+		<canvas id="pastDaylight" width="<?php echo $CANVAS_DAYLIGHT_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 		<div id="camImageDiv">
 			<div id="camImageHeader" class="camImageHeaderCorner"><?php echo date("g:i a", $newestCamImage->getDate()); ?></div>
-			<img id="camImage" onmousedown="return false" src="<?php echo $newestCamImage->getPath(); ?>" alt="Latest cam image" title="Latest cam image" />
+			<img id="camImage" onmousedown="return false" src="<?php echo $newestCamImage->getPath(); ?>" alt="Latest cam image" title="Latest cam image" width="<?php echo $CAM_IMAGE_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>" />
 		</div>
-		<canvas id="postDaylight" width="400" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+		<canvas id="postDaylight" width="<?php echo $CANVAS_DAYLIGHT_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 	</div>
-	<div id="sliderDiv"><input type="range" id="slider" min="0" max="100" value="100" onchange="rangeUpdated(this.value)" /></div>
+	<div id="historyRow">
+		<canvas id="canvasHistory" width="<?php echo $CANVAS_HISTORY_WIDTH; ?>" height="<?php echo $CANVAS_HISTORY_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+	</div>
+	<div id="sliderDiv"><input type="range" id="slider" min="<?php echo $SLIDER_MIN; ?>" max="<?php echo $SLIDER_MAX; ?>" value="<?php echo $SLIDER_VALUE; ?>" step="<?php echo $SLIDER_STEP; ?>" onchange="rangeUpdated(this.value)" /></div>
 </div>
 <script>init()</script>
 </body>

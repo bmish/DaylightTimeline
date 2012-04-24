@@ -64,6 +64,12 @@ body {
 	font-size: 0;
 }
 
+#historyRow {
+	width: 1440px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 #sliderDiv {
 	margin-top:90px;
 	text-align: center;
