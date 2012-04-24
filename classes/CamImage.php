@@ -28,7 +28,7 @@ class CamImage {
 		$instance = new self($row["filename"], true);
 		
 		$instance->date = strtotime($row["uploadedAt"]);
-		$instance->averagePixelColors = CamImage::hexToRGB($row["averagePixelColorHex"]);
+		$instance->averagePixelColors = Util::hexToRGB($row["averagePixelColorHex"]);
 		
 		return $instance;
 	}	
@@ -162,7 +162,7 @@ class CamImage {
 		$camImages = array();
 		if ($handle = opendir($SNAPSHOT_UNPROCESSED_DIR_NAME)) {
 		    while (false !== ($entry = readdir($handle))) {
-				if (CamImage::isImage($SNAPSHOT_UNPROCESSED_DIR_NAME."/".$entry)) {
+				if (Util::isImage($SNAPSHOT_UNPROCESSED_DIR_NAME."/".$entry)) {
 					$camImages[] = CamImage::fromFile($entry);
 				}
 		    }
@@ -184,63 +184,9 @@ class CamImage {
 	public function getAveragePixelColorHex() {
 		$averagePixelColors = $this->getAveragePixelColors();
 		
-		$hex = CamImage::rgb2hex(array_values($averagePixelColors));
+		$hex = Util::rgb2hex(array_values($averagePixelColors));
 		
-		return CamImage::hexToString($hex);
-	}
-	
-	// http://www.php.net/manual/en/function.dechex.php#39755
-	private static function rgb2hex($rgb){
-	    if(!is_array($rgb) || count($rgb) < 3){
-	        echo "rgb2hex(): Argument must be an array with 3 or 4 integer elements.";
-	        return false;
-	    }
-	    for($i=0;$i<count($rgb);$i++){
-	        if(strlen($hex[$i] = dechex($rgb[$i])) == 1){
-	            $hex[$i] = "0".$hex[$i];
-	        }
-	    }
-	    return $hex;
-	}
-	
-	/**
-	 * http://www.php.net/manual/en/function.hexdec.php#99478
-	 * Convert a hexadecimal color code to its RGB equivalent
-	 *
-	 * @param string $hexStr (hexadecimal color value)
-	 * @param boolean $returnAsString (if set true, returns the value separated by the separator character. Otherwise returns associative array)
-	 * @param string $seperator (to separate RGB values. Applicable only if second parameter is true.)
-	 * @return array or string (depending on second parameter. Returns False if invalid hex color value)
-	 */                                                                                                 
-	private function hexToRGB($hexStr, $returnAsString = false, $seperator = ',') {
-	    $hexStr = preg_replace("/[^0-9A-Fa-f]/", '', $hexStr); // Gets a proper hex string
-	    $rgbArray = array();
-	    if (strlen($hexStr) == 6) { //If a proper hex code, convert using bitwise operation. No overhead... faster
-	        $colorVal = hexdec($hexStr);
-	        $rgbArray[0] = 0xFF & ($colorVal >> 0x10);
-	        $rgbArray[1] = 0xFF & ($colorVal >> 0x8);
-	        $rgbArray[2] = 0xFF & $colorVal;
-	    } elseif (strlen($hexStr) == 3) { //if shorthand notation, need some string manipulations
-	        $rgbArray[0] = hexdec(str_repeat(substr($hexStr, 0, 1), 2));
-	        $rgbArray[1] = hexdec(str_repeat(substr($hexStr, 1, 1), 2));
-	        $rgbArray[2] = hexdec(str_repeat(substr($hexStr, 2, 1), 2));
-	    } else {
-	        return false; //Invalid hex color code
-	    }
-	    return $returnAsString ? implode($seperator, $rgbArray) : $rgbArray; // returns the rgb string or the associative array
-	}
-	
-	private static function hexToString($hex) {
-		$str = "";
-		for($i=0;$i<count($hex);$i++){
-			$str .= $hex[$i];
-		}
-		
-		return $str;
-	}
-	
-	private static function isImage($filePath) {
-		return getimagesize($filePath) !== false;
+		return Util::hexToString($hex);
 	}
 	
 	public static function getCamImages($count, $centerDate, $timeDirection) {
@@ -266,16 +212,6 @@ class CamImage {
 		return ($count == 1) ? $camImages[0] : $camImages;
 	}
 	
-	private static function jsonSerializeArray($array) {
-		$ret = array();
-
-		for ($i = 0; $i < count($array); $i++) {
-			$ret[] = $array[$i]->jsonSerialize();
-		}
-
-		return $ret;
-	}
-	
 	public function jsonSerialize() {
 		$arr = array();
 		$arr["filename"] = $this->filename;
@@ -292,18 +228,9 @@ class CamImage {
 			return $camImages->jsonSerialize();
 		}
 		
-		$jsonArray = CamImage::jsonSerializeArray($camImages);
+		$jsonArray = Util::jsonSerializeArray($camImages);
 		
 		return $jsonArray;
-	}
-	
-	public static function outputArrayInJSON($json) {
-		header('Content-type: application/json');
-		echo json_encode($json);
-	}
-	
-	public static function calculateLoadingDuration($timeStart, $decimals = 2) {
-		return round(microtime(true) - $timeStart, $decimals);
 	}
 }
 ?>

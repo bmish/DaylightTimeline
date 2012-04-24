@@ -3,6 +3,7 @@ require_once("config/config.php");
 require_once("classes/CamImage.php");
 require_once("classes/DB.php");
 require_once("classes/enums.php");
+require_once("classes/Util.php");
 
 // Connect to database.
 DB::connect();
@@ -28,10 +29,10 @@ if ($_GET["process"] == "true") {
 	// Build JSON object.
 	$obj = array();
 	$obj["processedCount"] = $processedCount;
-	$obj["duration"] = CamImage::calculateLoadingDuration($timeStart);
+	$obj["duration"] = Util::calculateLoadingDuration($timeStart);
 		
 	// Output JSON.
-	CamImage::outputArrayInJSON($obj);
+	Util::outputArrayInJSON($obj);
 	
 	exit;
 } elseif ($_GET["json"] == "true") {
@@ -43,10 +44,10 @@ if ($_GET["process"] == "true") {
 	$obj["centerCamImage"] = CamImage::getJSONObjectOfCamImages(1, $centerDate, TimeDirection::Now);
 	$obj["pastCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Past);
 	$obj["postCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Post);
-	$obj["duration"] = CamImage::calculateLoadingDuration($timeStart);
+	$obj["duration"] = Util::calculateLoadingDuration($timeStart);
 		
 	// Output JSON.
-	CamImage::outputArrayInJSON($obj);
+	Util::outputArrayInJSON($obj);
 	
 	exit;
 }
