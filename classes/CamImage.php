@@ -65,7 +65,7 @@ class CamImage {
 		}
 	}
 
-	private function setupImageAndCalculateAveragePixelColors($averagingMethod, $averagingFactor) {
+	private function setupImageAndCalculateAveragePixelColors() {
 		// Load image.
 		$image = imagecreatefromjpeg($this->getPath());
 		if (!$image) {
@@ -80,86 +80,26 @@ class CamImage {
 		}
 		
 		// Calculate average pixel colors.
-		$this->averagePixelColors = $this->calculateAveragePixelColors($image, $width, $height, $averagingMethod, $averagingFactor);
+		$this->averagePixelColors = $this->calculateAveragePixelColors($image, $width, $height);
 		
 		// Free image memory.
 		imagedestroy($image);	
 	}
 	
-	private function calculateAveragePixelColors($image, $width, $height, $averagingMethod, $averagingFactor) {
-		$pixelSums = array();
-		$pixelSums["red"] = 0;
-		$pixelSums["green"] = 0;
-		$pixelSums["blue"] = 0;
-		$pixelCount = $width * $height;
-		$pixelSumCount = 0;
+	private function calculateAveragePixelColors($image, $width, $height) {
+		// Resize image to one average pixel using resampling (around 40 times faster than looping through each pixel and nearly as accurate).
+		// http://stackoverflow.com/questions/6962814/average-of-rgb-color-of-image
+		$tmp_img = ImageCreateTrueColor(1,1);
+		ImageCopyResampled($tmp_img,$image,0,0,0,0,1,1,$width,$height); // or ImageCopyResized
 		
-		if ($averagingMethod == 1) {
-			$pixelSumCount = floor($width / $averagingFactor) * floor($height / $averagingFactor);
-			for ($x = 0; $x < $width; $x+=$averagingFactor) {
-				for ($y = 0; $y < $height; $y+=$averagingFactor) {
-					$rgb = imagecolorat($image, $x, $y);
-					$colors = imagecolorsforindex($image, $rgb);
+		// The remaining pixel contains the average color of the image.
+		$rgb = ImageColorAt($tmp_img,0,0);
+		$colors = imagecolorsforindex($tmp_img, $rgb);
+		
+		// Free temporary image memory.
+		imagedestroy($tmp_img);
 
-					$pixelSums["red"] += $colors["red"];
-					$pixelSums["green"] += $colors["green"];
-					$pixelSums["blue"] += $colors["blue"];
-				}
-			}
-		} elseif($averagingMethod == 2) {
-			$pixelSumCount = floor($pixelCount / $averagingFactor);
-			for($ind = 0; $ind < $pixelCount; $ind+=$averagingFactor) {
-				$x = $ind % $width;
-				$y = floor($ind / $width);//echo '('.$x.','.$y.')';
-
-				$rgb = imagecolorat($image, $x, $y);
-				$colors = imagecolorsforindex($image, $rgb);
-
-				$pixelSums["red"] += $colors["red"];
-				$pixelSums["green"] += $colors["green"];
-				$pixelSums["blue"] += $colors["blue"];
-			} 
-		} elseif ($averagingMethod == 3) {
-			$pixelSumCount = $averagingFactor;
-			for($i = 0; $i < $averagingFactor; $i++) {
-				$x = rand(0, $width);
-				$y = rand(0, $height);
-				
-				$rgb = imagecolorat($image, $x, $y);
-				$colors = imagecolorsforindex($image, $rgb);
-
-				$pixelSums["red"] += $colors["red"];
-				$pixelSums["green"] += $colors["green"];
-				$pixelSums["blue"] += $colors["blue"];
-			}
-		} elseif ($averagingMethod == 4) {
-			$tmp_img = ImageCreateTrueColor(1,1);
-			ImageCopyResampled($tmp_img,$image,0,0,0,0,1,1,$width,$height); // or ImageCopyResized
-			$rgb = ImageColorAt($tmp_img,0,0);
-			$colors = imagecolorsforindex($tmp_img, $rgb);
-			
-			$pixelSumCount = 1;
-			$pixelSums["red"] += $colors["red"];
-			$pixelSums["green"] += $colors["green"];
-			$pixelSums["blue"] += $colors["blue"];
-		}
-		
-		// Calculate pixel color averages.
-		$averagePixelColors = array();
-		$averagePixelColors["red"] = round($pixelSums["red"] / $pixelSumCount);
-		$averagePixelColors["green"] = round($pixelSums["green"] / $pixelSumCount);
-		$averagePixelColors["blue"] = round($pixelSums["blue"] / $pixelSumCount);
-		
-		return $averagePixelColors;
-	}
-	
-	private function runAveragingTest($averagingMethod, $averagingFactor) {
-		$timeStart = microtime(true);
-		
-		$this->setupImageAndCalculateAveragePixelColors($averagingMethod, $averagingFactor);
-		$averagePixelColorHex = $this->getAveragePixelColorHex();
-		
-		echo '<p><font color="#'.$averagePixelColorHex.'">#'.$averagePixelColorHex.': '.CamImage::calculateLoadingDuration($timeStart, 4).' seconds using ('.$averagingMethod.', '.$averagingFactor.')</font></p>';
+		return $colors;
 	}
 	
 	private function addToDB() {
@@ -178,28 +118,6 @@ class CamImage {
 		if (!file_exists($SNAPSHOT_PROCESSED_DIR_NAME) ) {
 			mkdir($SNAPSHOT_PROCESSED_DIR_NAME, 0777);
 		}
-	}
-	
-	public static function runAveragingTests() {
-		$camImages = CamImage::getUnprocessedCamImages();
-		if (count($camImages) == 0) {
-			echo 'Need at least one unprocessed image to test with.';
-			return;
-		}
-		$camImage = $camImages[0];
-		
-		$camImage->runAveragingTest(1, 1);
-		$camImage->runAveragingTest(2, 1);
-		$camImage->runAveragingTest(3, 20000);
-		$camImage->runAveragingTest(4, -1);
-		
-		$camImage->runAveragingTest(1, 10);
-		$camImage->runAveragingTest(2, 10);
-		$camImage->runAveragingTest(3, 10000);
-		
-		$camImage->runAveragingTest(1, 20);
-		$camImage->runAveragingTest(2, 20);
-		$camImage->runAveragingTest(3, 8000);
 	}
 	
 	public static function processNewCamImages() {
@@ -256,10 +174,8 @@ class CamImage {
 	}
 	
 	private function getAveragePixelColors() {
-		global $AVERAGING_METHOD, $AVERAGING_FACTOR;
-		
 		if (!$this->averagePixelColors) {
-			$this->setupImageAndCalculateAveragePixelColors($AVERAGING_METHOD, $AVERAGING_FACTOR);
+			$this->setupImageAndCalculateAveragePixelColors();
 		}
 		
 		return $this->averagePixelColors;
@@ -275,8 +191,8 @@ class CamImage {
 	
 	// http://www.php.net/manual/en/function.dechex.php#39755
 	private static function rgb2hex($rgb){
-	    if(!is_array($rgb) || count($rgb) != 3){
-	        echo "Argument must be an array with 3 integer elements";
+	    if(!is_array($rgb) || count($rgb) < 3){
+	        echo "rgb2hex(): Argument must be an array with 3 or 4 integer elements.";
 	        return false;
 	    }
 	    for($i=0;$i<count($rgb);$i++){

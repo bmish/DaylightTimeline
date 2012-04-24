@@ -49,10 +49,6 @@ if ($_GET["process"] == "true") {
 	CamImage::outputArrayInJSON($obj);
 	
 	exit;
-} elseif ($_GET["averagingTest"] == "true") {
-	CamImage::runAveragingTests();
-	
-	exit;
 }
 
 // Get newest cam image to display.
