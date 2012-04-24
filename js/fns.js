@@ -65,9 +65,9 @@ function prepareCamImageEvents() {
 }
 
 function init() {
-	var date = getParameterByName("date");
+	var date = getParameterByName("center");
 	
-	jQuery.getJSON("index.php?json=true&date=" + date, receivedJSON);
+	jQuery.getJSON("index.php?json=true&center=" + date, receivedJSON);
 }
 
 // http://stackoverflow.com/questions/901115/get-query-string-values-in-javascript

@@ -2,12 +2,13 @@
 require_once("config/config.php");
 require_once("classes/CamImage.php");
 require_once("classes/DB.php");
+require_once("classes/enums.php");
 
 // Connect to database.
 DB::connect();
 
 // Center date?
-$centerDate = strtotime($_GET["date"]);
+$centerDate = strtotime($_GET["center"]);
 if (!$centerDate) {
 	$centerDate = time();
 }
@@ -17,8 +18,9 @@ if ($_GET["process"] == "true") {
 	// Start timing.
 	$timeStart = microtime(true);
 	
-	// Remove script execution time limit.
+	// Remove script execution time limit and increase memory limit.
 	set_time_limit(0);
+	ini_set('memory_limit', $MEMORY_LIMIT_FOR_PROCESSING);
 	
 	// Process new cam images.
 	$processedCount = CamImage::processNewCamImages();
@@ -47,6 +49,10 @@ if ($_GET["process"] == "true") {
 	CamImage::outputArrayInJSON($obj);
 	
 	exit;
+} elseif ($_GET["averagingTest"] == "true") {
+	CamImage::runAveragingTests();
+	
+	exit;
 }
 
 // Get newest cam image to display.
@@ -72,7 +78,7 @@ DB::close();
 <div id="wrapper">
 	<div id="header">
 		<div id="pageTitle"><?php echo date("F j, Y", $newestCamImage->getDate()); ?></div>
-		<div id="pageSubtitle"><a target="_blank" href="http://maps.google.com/?q=<?php echo urlencode($DISPLAY_CAM_LOCATION_ADDR); ?>"><?php echo $DISPLAY_CAM_LOCATION_NAME; ?></a></div>
+		<div id="pageSubtitle"><?php echo $DISPLAY_CAM_LOCATION_NAME; ?></div>
 	</div>
 	<div id="daylightRow">
 		<canvas id="pastDaylight" width="400" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
@@ -82,6 +88,7 @@ DB::close();
 		</div>
 		<canvas id="postDaylight" width="400" height="480">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 	</div>
+	<div id="sliderDiv"><input type="range" id="slider" min="0" max="100" value="100" onchange="rangeUpdated(this.value)" /></div>
 </div>
 <script>init()</script>
 </body>

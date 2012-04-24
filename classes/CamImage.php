@@ -2,8 +2,6 @@
 class CamImage {
 	private $filename;
 	private $date;
-	private $height;
-	private $width;
 	private $averagePixelColors;
 	private $isProcessed;
 	
@@ -12,8 +10,6 @@ class CamImage {
 		$this->isProcessed = $isProcessed;
 		
 		$this->date = 0;
-		$this->height = 0;
-		$this->width = 0;
 		$this->averagePixelColors = null;
 	}
 	
@@ -69,7 +65,7 @@ class CamImage {
 		}
 	}
 
-	private function calculateAveragePixelColors() {
+	private function setupImageAndCalculateAveragePixelColors($averagingMethod, $averagingFactor) {
 		// Load image.
 		$image = imagecreatefromjpeg($this->getPath());
 		if (!$image) {
@@ -77,36 +73,97 @@ class CamImage {
 		}
 		
 		// Calculate dimensions.
-		$this->height = imagesy($image);
-		$this->width = imagesx($image);
-		$pixelCount = $this->width * $this->height;
-		if ($pixelCount == 0) {
+		$height = imagesy($image);
+		$width = imagesx($image);
+		if (!$height || !$width) {
 			return;
 		}
 		
-		// Sum pixel colors.
-		$pixelSumRed = 0;
-		$pixelSumGreen = 0;
-		$pixelSumBlue = 0;
-		for ($x = 0; $x < $this->width; $x++) {
-			for ($y = 0; $y < $this->height; $y++) {
-				$rgb = imagecolorat($image, $x, $y);
-				$colors = imagecolorsforindex($image, $rgb);
-				
-				$pixelSumRed += $colors["red"];
-				$pixelSumGreen += $colors["green"];
-				$pixelSumBlue += $colors["blue"];
-			}
-		}
+		// Calculate average pixel colors.
+		$this->averagePixelColors = $this->calculateAveragePixelColors($image, $width, $height, $averagingMethod, $averagingFactor);
 		
 		// Free image memory.
-		imagedestroy($image);
+		imagedestroy($image);	
+	}
+	
+	private function calculateAveragePixelColors($image, $width, $height, $averagingMethod, $averagingFactor) {
+		$pixelSums = array();
+		$pixelSums["red"] = 0;
+		$pixelSums["green"] = 0;
+		$pixelSums["blue"] = 0;
+		$pixelCount = $width * $height;
+		$pixelSumCount = 0;
+		
+		if ($averagingMethod == 1) {
+			$pixelSumCount = floor($width / $averagingFactor) * floor($height / $averagingFactor);
+			for ($x = 0; $x < $width; $x+=$averagingFactor) {
+				for ($y = 0; $y < $height; $y+=$averagingFactor) {
+					$rgb = imagecolorat($image, $x, $y);
+					$colors = imagecolorsforindex($image, $rgb);
+
+					$pixelSums["red"] += $colors["red"];
+					$pixelSums["green"] += $colors["green"];
+					$pixelSums["blue"] += $colors["blue"];
+				}
+			}
+		} elseif($averagingMethod == 2) {
+			$pixelSumCount = floor($pixelCount / $averagingFactor);
+			for($ind = 0; $ind < $pixelCount; $ind+=$averagingFactor) {
+				$x = $ind % $width;
+				$y = floor($ind / $width);//echo '('.$x.','.$y.')';
+
+				$rgb = imagecolorat($image, $x, $y);
+				$colors = imagecolorsforindex($image, $rgb);
+
+				$pixelSums["red"] += $colors["red"];
+				$pixelSums["green"] += $colors["green"];
+				$pixelSums["blue"] += $colors["blue"];
+			} 
+		} elseif ($averagingMethod == 3) {
+			$pixelSumCount = $averagingFactor;
+			for($i = 0; $i < $averagingFactor; $i++) {
+				$x = rand(0, $width);
+				$y = rand(0, $height);
+				
+				$rgb = imagecolorat($image, $x, $y);
+				$colors = imagecolorsforindex($image, $rgb);
+
+				$pixelSums["red"] += $colors["red"];
+				$pixelSums["green"] += $colors["green"];
+				$pixelSums["blue"] += $colors["blue"];
+			}
+		} elseif ($averagingMethod == 4) {
+			$tmp_img = ImageCreateTrueColor(1,1);
+			ImageCopyResampled($tmp_img,$image,0,0,0,0,1,1,$width,$height); // or ImageCopyResized
+			$rgb = ImageColorAt($tmp_img,0,0);
+			$colors = imagecolorsforindex($tmp_img, $rgb);
+			
+			$pixelSumCount = 1;
+			$pixelSums["red"] += $colors["red"];
+			$pixelSums["green"] += $colors["green"];
+			$pixelSums["blue"] += $colors["blue"];
+		}
 		
 		// Calculate pixel color averages.
-		$this->averagePixelColors = array();
-		$this->averagePixelColors["red"] = round($pixelSumRed / $pixelCount);
-		$this->averagePixelColors["green"] = round($pixelSumGreen / $pixelCount);
-		$this->averagePixelColors["blue"] = round($pixelSumBlue / $pixelCount);	
+		$averagePixelColors = array();
+		$averagePixelColors["red"] = round($pixelSums["red"] / $pixelSumCount);
+		$averagePixelColors["green"] = round($pixelSums["green"] / $pixelSumCount);
+		$averagePixelColors["blue"] = round($pixelSums["blue"] / $pixelSumCount);
+		
+		return $averagePixelColors;
+	}
+	
+	private function runAveragingTest($averagingMethod, $averagingFactor) {
+		$timeStart = microtime(true);
+		
+		$this->setupImageAndCalculateAveragePixelColors($averagingMethod, $averagingFactor);
+		$averagePixelColorHex = $this->getAveragePixelColorHex();
+		
+		echo '<p><font color="#'.$averagePixelColorHex.'">#'.$averagePixelColorHex.': '.CamImage::calculateLoadingDuration($timeStart, 4).' seconds using ('.$averagingMethod.', '.$averagingFactor.')</font></p>';
+	}
+	
+	private function addToDB() {
+		mysql_query("INSERT INTO camImages (filename, uploadedAt, averagePixelColorHex) VALUES ('".$this->filename."','".$this->getDateTime()."','".$this->getAveragePixelColorHex()."')");
 	}
 	
 	private static function createNecessaryDirectoriesIfNotExist() {
@@ -123,25 +180,46 @@ class CamImage {
 		}
 	}
 	
+	public static function runAveragingTests() {
+		$camImages = CamImage::getUnprocessedCamImages();
+		if (count($camImages) == 0) {
+			echo 'Need at least one unprocessed image to test with.';
+			return;
+		}
+		$camImage = $camImages[0];
+		
+		$camImage->runAveragingTest(1, 1);
+		$camImage->runAveragingTest(2, 1);
+		$camImage->runAveragingTest(3, 20000);
+		$camImage->runAveragingTest(4, -1);
+		
+		$camImage->runAveragingTest(1, 10);
+		$camImage->runAveragingTest(2, 10);
+		$camImage->runAveragingTest(3, 10000);
+		
+		$camImage->runAveragingTest(1, 20);
+		$camImage->runAveragingTest(2, 20);
+		$camImage->runAveragingTest(3, 8000);
+	}
+	
 	public static function processNewCamImages() {
 		// Create necessary directories.
 		CamImage::createNecessaryDirectoriesIfNotExist();
 		
 		// Get unprocessed cam images.
 		$camImages = CamImage::getUnprocessedCamImages();
+		$camImageCount = count($camImages);
 		
 		// Store image information in database.
-		foreach ($camImages as $camImage) {
+		foreach ($camImages as $key => $camImage) {
 			$camImage->addToDB();
 			
 			$camImage->moveToProcessedDirectory();
+			
+			unset($camImages[$key]); // Don't need this object anymore.
 		}
 		
-		return count($camImages);
-	}
-	
-	private function addToDB() {
-		mysql_query("INSERT INTO camImages (filename, uploadedAt, averagePixelColorHex) VALUES ('".$this->filename."','".$this->getDateTime()."','".$this->getAveragePixelColorHex()."')");
+		return $camImageCount;
 	}
 	
 	private function moveToProcessedDirectory() {
@@ -178,8 +256,10 @@ class CamImage {
 	}
 	
 	private function getAveragePixelColors() {
+		global $AVERAGING_METHOD, $AVERAGING_FACTOR;
+		
 		if (!$this->averagePixelColors) {
-			$this->calculateAveragePixelColors();
+			$this->setupImageAndCalculateAveragePixelColors($AVERAGING_METHOD, $AVERAGING_FACTOR);
 		}
 		
 		return $this->averagePixelColors;
@@ -306,14 +386,8 @@ class CamImage {
 		echo json_encode($json);
 	}
 	
-	public static function calculateLoadingDuration($timeStart) {
-		return round(microtime(true) - $timeStart, 2);
+	public static function calculateLoadingDuration($timeStart, $decimals = 2) {
+		return round(microtime(true) - $timeStart, $decimals);
 	}
-}
-
-class TimeDirection {
-    const Past = 0;
-    const Now = 1;
-	const Post = 2;
 }
 ?>

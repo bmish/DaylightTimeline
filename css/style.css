@@ -1,19 +1,20 @@
 #pageTitle {
 	text-align: center;
-	font-size: 30px;
-	margin-top: 10px;
+	font-size: 26pt;
+	margin-top: 60px;
 	margin-bottom: 3px;
 	color: #4D4D4D;
 }
 
 #pageSubtitle {
+	font-size: 14pt;
 	text-align: center;
 }
 
 #header {
 	width: 100%;
 	padding-top:1px;
-	padding-bottom: 10px;
+	padding-bottom: 50px;
 }
 
 #wrapper {
@@ -61,4 +62,13 @@ body {
 	margin-right: auto;
 	margin-top: 20px;
 	font-size: 0;
+}
+
+#sliderDiv {
+	margin-top:90px;
+	text-align: center;
+}
+
+#slider {
+	width: 500px;
 }
