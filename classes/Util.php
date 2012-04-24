@@ -72,5 +72,21 @@ class Util {
 	public static function calculateLoadingDuration($timeStart, $decimals = 2) {
 		return round(microtime(true) - $timeStart, $decimals);
 	}
+	
+	public static function dateToDate($date) {
+		return date("Y-m-d", $date);
+	}
+	
+	public static function dateToDateTime($date) {
+		return date("Y-m-d H:i:s", $date);
+	}
+	
+	public static function stringToDateTime($dateString) {
+		return Util::dateToDateTime(strtotime($dateString));
+	}
+	
+	public static function stringToDate($dateString) {
+		return Util::dateToDate(strtotime($dateString));
+	}
 }
 ?>

@@ -52,7 +52,7 @@ class CamImage {
 	}
 	
 	public function getDateTime() {
-		return date("Y-m-d H:i:s", $this->getDate());
+		return Util::dateToDateTime($this->getDate());
 	}
 	
 	public function getPath() {
