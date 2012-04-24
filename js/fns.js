@@ -1,12 +1,45 @@
+var SNAPSHOT_PROCESSED_DIR_NAME = "snapshots/processed/";
+
 var json;
+var camImageElement;
+var pageTitleElement;
 
 function receivedJSON(data) {
 	json = data;
 	
+	updateCamImage();
 	setCamImageFontColor();
 	prepareCamImageEvents();
 	drawDaylight("pastDaylight",json.pastCamImages);
 	drawDaylight("postDaylight",json.postCamImages);
+}
+
+function updateCamImage() {
+	// Update cam image if necessary.
+	if (getCamImageElement().src != SNAPSHOT_PROCESSED_DIR_NAME + json.centerCamImage.filename) {
+		var im = new Image();
+		im.src = SNAPSHOT_PROCESSED_DIR_NAME + json.centerCamImage.filename;
+		getCamImageElement().src = im.src;
+	}
+	
+	// Update page title.
+	getPageTitleElement().innerText = $.format.date(json.centerCamImage.date, "MMMM d, yyyy");
+}
+
+function getCamImageElement() {
+	if (!camImageElement) {
+		camImageElement = document.getElementById("camImage");
+	}
+	
+	return camImageElement;
+}
+
+function getPageTitleElement() {
+	if (!pageTitleElement) {
+		pageTitleElement = document.getElementById("pageTitle");
+	}
+	
+	return pageTitleElement;
 }
 
 function drawDaylight(canvasName, camImages) {
@@ -81,4 +114,10 @@ function getParameterByName(name)
     return "";
   else
     return decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function rangeUpdated(newValue) {
+	var daysAgo = 100 - newValue; 
+	
+	jQuery.getJSON("index.php?json=true&center=" + daysAgo + " days ago", receivedJSON);
 }

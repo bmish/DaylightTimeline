@@ -70,6 +70,7 @@ DB::close();
 <link href="css/style.css" rel="stylesheet" type="text/css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script src="js/fns.js"></script>
+<script src="js/jquery-dateFormat/jquery.dateFormat-1.0.js"></script>
 </head>
 <body>
 <div id="wrapper">
