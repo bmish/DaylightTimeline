@@ -1,6 +1,7 @@
 <?php
 require_once("config/config.php");
 require_once("classes/CamImage.php");
+require_once("classes/Command.php");
 require_once("classes/Day.php");
 require_once("classes/DB.php");
 require_once("classes/enums.php");
@@ -17,64 +18,11 @@ if (!$centerDate) {
 
 // Run scripts?
 if ($_GET["process"] == "true") {
-	// Start timing.
-	$timeStart = microtime(true);
-	
-	// Remove script execution time limit and increase memory limit.
-	set_time_limit(0);
-	ini_set('memory_limit', $MEMORY_LIMIT_FOR_PROCESSING);
-	
-	// Process new cam images.
-	$processedCount = CamImage::processNewCamImages();
-	
-	// Build JSON object.
-	$obj = array();
-	$obj["processedCount"] = $processedCount;
-	$obj["duration"] = Util::calculateLoadingDuration($timeStart);
-		
-	// Output JSON.
-	Util::outputArrayInJSON($obj);
-	
-	exit;
+	Command::process();
 } elseif ($_GET["json"] == "true") {
-	// Start timing.
-	$timeStart = microtime(true);
-	
-	// Build JSON object.
-	$obj = array();
-	$obj["centerCamImage"] = CamImage::getJSONObjectOfCamImages(1, $centerDate, TimeDirection::Now);
-	$obj["pastCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Past);
-	$obj["postCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Post);
-	$obj["duration"] = Util::calculateLoadingDuration($timeStart);
-		
-	// Output JSON.
-	Util::outputArrayInJSON($obj);
-	
-	exit;
+	Command::json($centerDate);
 } elseif ($_GET["processDays"] == "true") {
-	// Start timing.
-	$timeStart = microtime(true);
-	
-	// Choose what year and month to process.
-	$dateToUse = time();
-	if (!empty($_GET["date"])) {
-		$dateToUse = strtotime($_GET["date"]);
-	}
-	$year = date("Y", $dateToUse);
-	$month = date("n", $dateToUse);
-	
-	// Process days.
-	$processedCount = Day::processAll($year, $month);
-	
-	// Build JSON object.
-	$obj = array();
-	$obj["processedCount"] = $processedCount;
-	$obj["duration"] = Util::calculateLoadingDuration($timeStart);
-		
-	// Output JSON.
-	Util::outputArrayInJSON($obj);
-	
-	exit;
+	Command::processDays();
 }
 
 // Get newest cam image to display.
