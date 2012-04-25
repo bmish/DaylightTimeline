@@ -17,7 +17,7 @@ class Day {
 		
 		$instance->sunriseTime = $sunriseDateTime;
 		$instance->sunsetTime = $sunsetDateTime;
-		$instance->averageDaylightPixelColorHex = $this->calculateAverageDaylightPixelColorHex();
+		$instance->averageDaylightPixelColorHex = $instance->calculateAverageDaylightPixelColorHex();
 		
 		$instance->saveToDB();
 		
@@ -35,7 +35,7 @@ class Day {
 	}
 	
 	private function foundCamImages() {
-		return $this->averageDaylightPixelColorHex != null;
+		return $this->averageDaylightPixelColorHex != "";
 	}
 	
 	public static function processAll($year, $month) {
@@ -58,13 +58,7 @@ class Day {
 	}
 	
 	private function saveToDB() {
-		if (!$this->averageDaylightPixelColorHex) { // Don't record a day if we couldn't compute the average color for it.
-			return false;
-		}
-		
 		mysql_query("INSERT INTO days (date, sunriseTime, sunsetTime, averageDaylightPixelColorHex) VALUES ('".$this->date."','".$this->sunriseTime."','".$this->sunsetTime."', '".$this->averageDaylightPixelColorHex."')");
-		
-		return true;
 	}
 	
 	private static function getSunMovements($year, $month) {
@@ -97,11 +91,11 @@ class Day {
 		return $sunMovements;
 	}
 	
-	private static function calculateAverageDaylightPixelColorHex($sunriseDateTime, $sunsetDateTime) {
-		$query = "SELECT averagePixelColorHex FROM camImages WHERE uploadedAt > '$sunriseDateTime' AND uploadedAt < '$sunsetDateTime'";
+	private function calculateAverageDaylightPixelColorHex() {
+		$query = "SELECT averagePixelColorHex FROM camImages WHERE uploadedAt > '".$this->sunriseDateTime."' AND uploadedAt < '".$this->sunsetDateTime."";
 		$result = mysql_query($query);
 		if (!$result || ($dayCount = mysql_num_rows($result)) == 0) {
-			return null;
+			return "";
 		}
 		
 		$pixelSums = array();
@@ -130,11 +124,20 @@ class Day {
 			return array();
 		}
 		
+		$seenDayWithCamImages = false; // Ignore days until we get to first day with cam images.
 		$days = array();
 		while ($row = mysql_fetch_array($result)) {
 			$day = Day::fromRow($row);
 			
-			$days[] = $day;
+			if ($seenDayWithCamImages || $day->foundCamImages()) {
+				$days[] = $day;
+				$seenDayWithCamImages = true;
+			}
+		}
+		
+		// Remove days after the last day with cam images.
+		while (!$days[count($days) - 1]->foundCamImages()) {
+			unset($days[count($days) - 1]);
 		}
 		
 		return $days;

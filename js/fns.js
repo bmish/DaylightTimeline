@@ -21,12 +21,12 @@ function receivedJSONDay(data) {
 function receivedJSONDays(data) {
 	jsonDays = data;
 	
-	updateSliderRange(jsonDays.days.length);
+	updateSliderRange();
 	drawHistory(jsonDays.days);
 }
 
-function updateSliderRange(max) {
-	document.getElementById("slider").max = max;
+function updateSliderRange() {
+	document.getElementById("slider").max = jsonDays.days.length - 1;
 }
 
 function updateCamImage() {
@@ -103,18 +103,47 @@ function drawDaylight(camImages, drawPastDaylight) {
 	}
 }
 
+function daysSinceLastCamImage() {
+	var dateStartString = jsonDays.days[jsonDays.days.length - 1].date;
+	var dateStart = new Date(Date.parse(dateStartString));
+	var today = new Date();
+	
+	// Both dates should have zeros for the time because we only want to count the number of days.
+	today.setHours(0);
+	today.setMinutes(0);
+	today.setSeconds(0);
+	today.setMilliseconds(0);
+	
+	return daysBetween(dateStart, today);
+}
+
+function daysBetween(dateStart, dateEnd) {
+	var diff = dateEnd.getTime() - dateStart.getTime();
+	
+	var MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
+	var dayCount = Math.floor(diff / MILLISECONDS_IN_DAY);
+	
+	return dayCount;
+}
+
 function drawHistory(days) {
+	if (days.length == 0) {
+		return;
+	}
+	
 	// Get canvas.
 	var c = getCanvasHistoryElement();
 	var ctx = c.getContext("2d");
 	
 	// Decide how much width to give each day color.
-	var rectWidth = Math.floor(c.width / days.length);
+	var rectWidth = Math.ceil(c.width / days.length);
 	
 	// Draw rectangle for each day color.
 	for (var i = 0; i < days.length; i++) {
-		ctx.fillStyle = "#" + days[i].averageDaylightPixelColorHex;
-		ctx.fillRect(i*rectWidth,0,rectWidth,c.height);
+		if (days[i].averageDaylightPixelColorHex) {
+			ctx.fillStyle = "#" + days[i].averageDaylightPixelColorHex;
+			ctx.fillRect(i*rectWidth,0,rectWidth,c.height);
+		}
 	}
 }
 
@@ -179,7 +208,7 @@ function getParameterByName(name)
 }
 
 function rangeUpdated(newValue) {
-	var daysAgo = jsonDays.days.length - newValue; 
+	var daysAgo = daysSinceLastCamImage() + jsonDays.days.length - newValue - 1; 
 	
 	jQuery.getJSON("index.php?jsonDay=true&center=" + daysAgo + " days ago", receivedJSONDay);
 }
