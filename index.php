@@ -10,28 +10,15 @@ require_once("classes/Util.php");
 // Connect to database.
 DB::connect();
 
-// Center date?
-$centerDate = strtotime($_GET["center"]);
-if (!$centerDate) {
-	$centerDate = time();
-}
-
 // Run scripts?
 if ($_GET["processImages"] == "true") {
 	Command::processImages();
 } elseif ($_GET["processDays"] == "true") {
 	Command::processDays();
 } elseif ($_GET["jsonDay"] == "true") {
-	Command::jsonDay($centerDate);
+	Command::jsonDay($date);
 } elseif ($_GET["jsonDays"] == "true") {
 	Command::jsonDays();
-}
-
-// Get newest cam image to display.
-$newestCamImage = CamImage::getCamImages(1, $centerDate, TimeDirection::Now);
-if ($newestCamImage == null) {
-	echo 'No cam images found in database.';
-	exit;
 }
 
 // Close database connection.
@@ -50,16 +37,11 @@ DB::close();
 <body>
 <div id="wrapper">
 	<div id="header">
-		<div id="pageTitle"><?php echo date("F j, Y", $newestCamImage->getDate()); ?></div>
+		<div id="pageTitle"></div>
 		<div id="pageSubtitle"><?php echo $DISPLAY_CAM_LOCATION_NAME; ?></div>
 	</div>
 	<div id="daylightRow">
-		<canvas id="canvasPast" width="<?php echo $CANVAS_DAYLIGHT_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
-		<div id="camImageDiv">
-			<div id="camImageHeader" class="camImageHeaderCorner"><?php echo date("g:i a", $newestCamImage->getDate()); ?></div>
-			<img id="camImage" onmousedown="return false" src="<?php echo $newestCamImage->getPath(); ?>" alt="Latest cam image" title="Latest cam image" width="<?php echo $CAM_IMAGE_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>" />
-		</div>
-		<canvas id="canvasPost" width="<?php echo $CANVAS_DAYLIGHT_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+		<canvas id="canvasDaylight" width="<?php echo $CANVAS_DAYLIGHT_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 	</div>
 	<div id="historyRow">
 		<input type="range" id="slider" min="<?php echo $SLIDER_MIN; ?>" max="<?php echo $SLIDER_MAX; ?>" value="<?php echo $SLIDER_VALUE; ?>" step="<?php echo $SLIDER_STEP; ?>" onchange="rangeUpdated(this.value)" />

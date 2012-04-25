@@ -26,36 +26,6 @@ body {
 	margin: 0;
 }
 
-#canvasPast {
-	display: inline-block;
-}
-
-#canvasPost {
-	display: inline-block;
-}
-
-#camImageHeader {
-	position: absolute;
-	width: 100%;
-}
-
-#camImageDiv {
-	display: inline-block;
-	position: relative;	
-}
-
-.camImageHeaderCorner {
-	font-size: 16px;
-	top: 2px;
-	left: 2px;
-}
-
-.camImageHeaderFullSize {
-	font-size: 106px;
-	top:160px;
-	text-align:center;
-}
-
 #daylightRow {
 	width: 1440px;
 	margin-left: auto;

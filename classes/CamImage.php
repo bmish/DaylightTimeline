@@ -189,19 +189,30 @@ class CamImage {
 		return Util::hexToString($hex);
 	}
 	
-	public static function getCamImages($count, $centerDate, $timeDirection) {
-		if ($timeDirection == TimeDirection::Post) {
-			$uploadedAtComparator = ">";
-			$order = "ASC";
-		} else {
-			$uploadedAtComparator = "<";
-			$order = "DESC";
-		}
-		
-		$query = "SELECT * FROM camImages WHERE uploadedAt ".$uploadedAtComparator." '".date("Y-m-d H:i:s",$centerDate)."' ORDER BY uploadedAt ".$order." LIMIT ".$count;
+	public static function getLastCamImageDate() {
+		$query = "SELECT uploadedAt FROM camImages ORDER BY uploadedAt DESC LIMIT 1";
 		$result = mysql_query($query);
 		if (!$result || mysql_num_rows($result) == 0) {
-			return null;
+			return array();
+		}
+		
+		$row = mysql_fetch_array($result);
+		
+		return strtotime($row["uploadedAt"]);
+	}
+	
+	public static function getCamImages($date) {
+		if (!$date) {
+			$date = CamImage::getLastCamImageDate();
+		}
+		
+		$dateTimeStart = date("Y-m-d", $date);
+		$dateTimeEnd = date("Y-m-d 23:59:59", $date);
+		
+		$query = "SELECT * FROM camImages WHERE uploadedAt >= '".$dateTimeStart."' AND uploadedAt <= '".$dateTimeEnd."' ORDER BY uploadedAt";
+		$result = mysql_query($query);
+		if (!$result || mysql_num_rows($result) == 0) {
+			return array();
 		}
 		
 		$camImages = array();
@@ -209,7 +220,7 @@ class CamImage {
 			$camImages[] = CamImage::fromRow($row);
 		}
 		
-		return ($count == 1) ? $camImages[0] : $camImages;
+		return $camImages;
 	}
 	
 	public function jsonSerialize() {
@@ -221,12 +232,8 @@ class CamImage {
 		return $arr;
 	}
 	
-	public static function getJSONObjectOfCamImages($count, $centerDate, $timeDirection) {
-		$camImages = CamImage::getCamImages($count, $centerDate, $timeDirection);
-		
-		if ($timeDirection == TimeDirection::Now) { // Don't need an array if only getting the current cam image.
-			return $camImages->jsonSerialize();
-		}
+	public static function getJSONObjectOfCamImages($date) {
+		$camImages = CamImage::getCamImages($date);
 		
 		$jsonArray = Util::jsonSerializeArray($camImages);
 		

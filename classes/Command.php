@@ -50,17 +50,13 @@ class Command {
 		exit;
 	}
 	
-	public static function jsonDay($centerDate) {
-		global $IMAGES_PER_CANVAS;
-		
+	public static function jsonDay($date) {
 		// Start timing.
 		$timeStart = microtime(true);
 
 		// Build JSON object.
 		$obj = array();
-		$obj["centerCamImage"] = CamImage::getJSONObjectOfCamImages(1, $centerDate, TimeDirection::Now);
-		$obj["pastCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Past);
-		$obj["postCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Post);
+		$obj["camImages"] = CamImage::getJSONObjectOfCamImages(strtotime($_GET["date"]));
 		$obj["duration"] = Util::calculateLoadingDuration($timeStart);
 
 		// Output JSON.
