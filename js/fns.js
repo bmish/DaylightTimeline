@@ -21,7 +21,12 @@ function receivedJSONDay(data) {
 function receivedJSONDays(data) {
 	jsonDays = data;
 	
+	updateSliderRange(jsonDays.days.length);
 	drawHistory(jsonDays.days);
+}
+
+function updateSliderRange(max) {
+	document.getElementById("slider").max = max;
 }
 
 function updateCamImage() {
@@ -174,7 +179,7 @@ function getParameterByName(name)
 }
 
 function rangeUpdated(newValue) {
-	var daysAgo = 100 - newValue; 
+	var daysAgo = jsonDays.days.length - newValue; 
 	
 	jQuery.getJSON("index.php?jsonDay=true&center=" + daysAgo + " days ago", receivedJSONDay);
 }
