@@ -1,5 +1,43 @@
 <?php
 class Day {
+	private $date;
+	private $sunriseTime;
+	private $sunsetTime;
+	private $averageDaylightPixelColorHex;
+	
+	private function __construct($date) {
+		$this->date = $date;
+		$this->sunriseTime = null;
+		$this->sunsetTime = null;
+		$this->averageDaylightPixelColorHex = null;
+	}
+	
+	private static function fromSunMovements($date, $sunriseDateTime, $sunsetDateTime) {
+		$instance = new self($date);
+		
+		$instance->sunriseTime = $sunriseDateTime;
+		$instance->sunsetTime = $sunsetDateTime;
+		$instance->averageDaylightPixelColorHex = $this->calculateAverageDaylightPixelColorHex();
+		
+		$instance->saveToDB();
+		
+		return $instance;
+	}
+	
+	private static function fromRow($row) {
+		$instance = new self($row["date"]);
+		
+		$instance->sunriseTime = $row["sunriseTime"];
+		$instance->sunsetTime = $row["sunsetTime"];
+		$instance->averageDaylightPixelColorHex = $row["averageDaylightPixelColorHex"];
+		
+		return $instance;
+	}
+	
+	private function foundCamImages() {
+		return $this->averageDaylightPixelColorHex != null;
+	}
+	
 	public static function processAll($year, $month) {
 		// Retrieve the sunrise and sunset for each day.
 		$sunMovements = Day::getSunMovements($year, $month);
@@ -7,28 +45,24 @@ class Day {
 		// Calculate the average color of each day and store this data in the database.
 		$processedCount = 0;
 		foreach ($sunMovements as $date => $sunMovement) {
-			$processed = Day::process($date, $sunMovement["sunriseDateTime"], $sunMovement["sunsetDateTime"]);
+			$day = Day::fromSunMovements($date, $sunMovement["sunriseDateTime"], $sunMovement["sunsetDateTime"]);
 			
-			if ($processed) {
+			if ($day->foundCamImages()) {
 				$processedCount++;
 			}
+			
+			unset($day);
 		}
 		
 		return $processedCount;
 	}
 	
-	private static function process($date, $sunriseDateTime, $sunsetDateTime) {
-		$averageDaylightPixelColorHex = Day::calculateAverageDaylightPixelColorHex($sunriseDateTime, $sunsetDateTime);
-		
-		return Day::saveToDB($date, $sunriseDateTime, $sunsetDateTime, $averageDaylightPixelColorHex);
-	}
-	
-	private static function saveToDB($date, $sunriseDateTime, $sunsetDateTime, $averageDaylightPixelColorHex) {
-		if (!$averageDaylightPixelColorHex) { // Don't record a day if we couldn't compute the average color for it.
+	private function saveToDB() {
+		if (!$this->averageDaylightPixelColorHex) { // Don't record a day if we couldn't compute the average color for it.
 			return false;
 		}
 		
-		mysql_query("INSERT INTO days (date, sunriseTime, sunsetTime, averageDaylightPixelColorHex) VALUES ('".$date."','".$sunriseDateTime."','".$sunsetDateTime."', '".$averageDaylightPixelColorHex."')");
+		mysql_query("INSERT INTO days (date, sunriseTime, sunsetTime, averageDaylightPixelColorHex) VALUES ('".$this->date."','".$this->sunriseTime."','".$this->sunsetTime."', '".$this->averageDaylightPixelColorHex."')");
 		
 		return true;
 	}
@@ -67,7 +101,7 @@ class Day {
 		$query = "SELECT averagePixelColorHex FROM camImages WHERE uploadedAt > '$sunriseDateTime' AND uploadedAt < '$sunsetDateTime'";
 		$result = mysql_query($query);
 		if (!$result || ($dayCount = mysql_num_rows($result)) == 0) {
-			return false;
+			return null;
 		}
 		
 		$pixelSums = array();
@@ -87,6 +121,41 @@ class Day {
 		$averagePixelColors["blue"] = round($pixelSums["blue"] / $dayCount);
 
 		return Util::hexToString(Util::rgb2Hex(array_values($averagePixelColors)));
+	}
+	
+	private static function getDays() {
+		$query = "SELECT * FROM days ORDER BY date";
+		$result = mysql_query($query);
+		if (!$result || mysql_num_rows($result) == 0) {
+			return array();
+		}
+		
+		$days = array();
+		while ($row = mysql_fetch_array($result)) {
+			$day = Day::fromRow($row);
+			
+			$days[] = $day;
+		}
+		
+		return $days;
+	}
+	
+	public function jsonSerialize() {
+		$arr = array();
+		$arr["date"] = $this->date;
+		$arr["sunriseTime"] = $this->sunriseTime;
+		$arr["sunsetTime"] = $this->sunsetTime;
+		$arr["averageDaylightPixelColorHex"] = $this->averageDaylightPixelColorHex;
+		
+		return $arr;
+	}
+	
+	public static function getJSONObjectOfDays() {
+		$days = Day::getDays();
+
+		$jsonArray = Util::jsonSerializeArray($days);
+		
+		return $jsonArray;
 	}
 }
 ?>

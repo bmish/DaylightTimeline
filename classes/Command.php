@@ -1,6 +1,6 @@
 <?php
 class Command {
-	public static function process() {
+	public static function processImages() {
 		global $MEMORY_LIMIT_FOR_PROCESSING;
 		
 		// Start timing.
@@ -16,25 +16,6 @@ class Command {
 		// Build JSON object.
 		$obj = array();
 		$obj["processedCount"] = $processedCount;
-		$obj["duration"] = Util::calculateLoadingDuration($timeStart);
-
-		// Output JSON.
-		Util::outputArrayInJSON($obj);
-
-		exit;
-	}
-	
-	public static function json($centerDate) {
-		global $IMAGES_PER_CANVAS;
-		
-		// Start timing.
-		$timeStart = microtime(true);
-
-		// Build JSON object.
-		$obj = array();
-		$obj["centerCamImage"] = CamImage::getJSONObjectOfCamImages(1, $centerDate, TimeDirection::Now);
-		$obj["pastCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Past);
-		$obj["postCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Post);
 		$obj["duration"] = Util::calculateLoadingDuration($timeStart);
 
 		// Output JSON.
@@ -61,6 +42,40 @@ class Command {
 		// Build JSON object.
 		$obj = array();
 		$obj["processedCount"] = $processedCount;
+		$obj["duration"] = Util::calculateLoadingDuration($timeStart);
+
+		// Output JSON.
+		Util::outputArrayInJSON($obj);
+
+		exit;
+	}
+	
+	public static function jsonDay($centerDate) {
+		global $IMAGES_PER_CANVAS;
+		
+		// Start timing.
+		$timeStart = microtime(true);
+
+		// Build JSON object.
+		$obj = array();
+		$obj["centerCamImage"] = CamImage::getJSONObjectOfCamImages(1, $centerDate, TimeDirection::Now);
+		$obj["pastCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Past);
+		$obj["postCamImages"] = CamImage::getJSONObjectOfCamImages($IMAGES_PER_CANVAS, $centerDate, TimeDirection::Post);
+		$obj["duration"] = Util::calculateLoadingDuration($timeStart);
+
+		// Output JSON.
+		Util::outputArrayInJSON($obj);
+
+		exit;
+	}
+	
+	public static function jsonDays() {
+		// Start timing.
+		$timeStart = microtime(true);
+
+		// Build JSON object.
+		$obj = array();
+		$obj["days"] = Day::getJSONObjectOfDays();
 		$obj["duration"] = Util::calculateLoadingDuration($timeStart);
 
 		// Output JSON.

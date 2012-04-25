@@ -17,12 +17,14 @@ if (!$centerDate) {
 }
 
 // Run scripts?
-if ($_GET["process"] == "true") {
-	Command::process();
-} elseif ($_GET["json"] == "true") {
-	Command::json($centerDate);
+if ($_GET["processImages"] == "true") {
+	Command::processImages();
 } elseif ($_GET["processDays"] == "true") {
 	Command::processDays();
+} elseif ($_GET["jsonDay"] == "true") {
+	Command::jsonDay($centerDate);
+} elseif ($_GET["jsonDays"] == "true") {
+	Command::jsonDays();
 }
 
 // Get newest cam image to display.
@@ -52,12 +54,12 @@ DB::close();
 		<div id="pageSubtitle"><?php echo $DISPLAY_CAM_LOCATION_NAME; ?></div>
 	</div>
 	<div id="daylightRow">
-		<canvas id="pastDaylight" width="<?php echo $CANVAS_DAYLIGHT_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+		<canvas id="canvasPast" width="<?php echo $CANVAS_DAYLIGHT_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 		<div id="camImageDiv">
 			<div id="camImageHeader" class="camImageHeaderCorner"><?php echo date("g:i a", $newestCamImage->getDate()); ?></div>
 			<img id="camImage" onmousedown="return false" src="<?php echo $newestCamImage->getPath(); ?>" alt="Latest cam image" title="Latest cam image" width="<?php echo $CAM_IMAGE_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>" />
 		</div>
-		<canvas id="postDaylight" width="<?php echo $CANVAS_DAYLIGHT_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+		<canvas id="canvasPost" width="<?php echo $CANVAS_DAYLIGHT_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 	</div>
 	<div id="historyRow">
 		<canvas id="canvasHistory" width="<?php echo $CANVAS_HISTORY_WIDTH; ?>" height="<?php echo $CANVAS_HISTORY_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>

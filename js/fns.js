@@ -1,29 +1,39 @@
 var SNAPSHOT_PROCESSED_DIR_NAME = "snapshots/processed/";
 
-var json;
+var jsonDay;
+var jsonDays;
 var camImageElement;
 var pageTitleElement;
+var canvasPastElement;
+var canvasPostElement;
+var canvasHistoryElement;
 
-function receivedJSON(data) {
-	json = data;
+function receivedJSONDay(data) {
+	jsonDay = data;
 	
 	updateCamImage();
 	setCamImageFontColor();
 	prepareCamImageEvents();
-	drawDaylight("pastDaylight",json.pastCamImages);
-	drawDaylight("postDaylight",json.postCamImages);
+	drawDaylight(jsonDay.pastCamImages, true);
+	drawDaylight(jsonDay.postCamImages, false);
+}
+
+function receivedJSONDays(data) {
+	jsonDays = data;
+	
+	drawHistory(jsonDays.days);
 }
 
 function updateCamImage() {
 	// Update cam image if necessary.
-	if (getCamImageElement().src != SNAPSHOT_PROCESSED_DIR_NAME + json.centerCamImage.filename) {
+	if (getCamImageElement().src != SNAPSHOT_PROCESSED_DIR_NAME + jsonDay.centerCamImage.filename) {
 		var im = new Image();
-		im.src = SNAPSHOT_PROCESSED_DIR_NAME + json.centerCamImage.filename;
+		im.src = SNAPSHOT_PROCESSED_DIR_NAME + jsonDay.centerCamImage.filename;
 		getCamImageElement().src = im.src;
 	}
 	
 	// Update page title.
-	getPageTitleElement().innerText = $.format.date(json.centerCamImage.date, "MMMM d, yyyy");
+	getPageTitleElement().innerText = $.format.date(jsonDay.centerCamImage.date, "MMMM d, yyyy");
 }
 
 function getCamImageElement() {
@@ -42,16 +52,40 @@ function getPageTitleElement() {
 	return pageTitleElement;
 }
 
-function drawDaylight(canvasName, camImages) {
+function getCanvasPastElement() {
+	if (!canvasPastElement) {
+		canvasPastElement = document.getElementById("canvasPast");
+	}
+	
+	return canvasPastElement;
+}
+
+function getCanvasPostElement() {
+	if (!canvasPostElement) {
+		canvasPostElement = document.getElementById("canvasPost");
+	}
+	
+	return canvasPostElement;
+}
+
+function getCanvasHistoryElement() {
+	if (!canvasHistoryElement) {
+		canvasHistoryElement = document.getElementById("canvasHistory");
+	}
+	
+	return canvasHistoryElement;
+}
+
+function drawDaylight(camImages, drawPastDaylight) {
 	// Get canvas.
-	var c = document.getElementById(canvasName);
+	var c = drawPastDaylight ? getCanvasPastElement() : getCanvasPostElement();
 	var ctx = c.getContext("2d");
 	
 	// Decide how much width to give each image color.
 	var rectWidth = 1;
 	
 	// Draw rectangle for each image color.
-	if (canvasName == "pastDaylight") {
+	if (drawPastDaylight) {
 		for (var i = 0; i < camImages.length; i++) {
 			ctx.fillStyle = "#" + camImages[i].averagePixelColorHex;
 			ctx.fillRect(c.width - i*rectWidth - 1,0,rectWidth,c.height);
@@ -61,6 +95,21 @@ function drawDaylight(canvasName, camImages) {
 			ctx.fillStyle = "#" + camImages[i].averagePixelColorHex;
 			ctx.fillRect(i*rectWidth,0,rectWidth,c.height);
 		}
+	}
+}
+
+function drawHistory(days) {
+	// Get canvas.
+	var c = getCanvasHistoryElement();
+	var ctx = c.getContext("2d");
+	
+	// Decide how much width to give each day color.
+	var rectWidth = Math.floor(c.width / days.length);
+	
+	// Draw rectangle for each day color.
+	for (var i = 0; i < days.length; i++) {
+		ctx.fillStyle = "#" + days[i].averageDaylightPixelColorHex;
+		ctx.fillRect(i*rectWidth,0,rectWidth,c.height);
 	}
 }
 
@@ -80,7 +129,7 @@ function returnOpposite(colour) {
 }
 
 function setCamImageFontColor() {
-	$("#camImageHeader").css({"color": "#" + returnOpposite(json.centerCamImage.averagePixelColorHex)})
+	$("#camImageHeader").css({"color": "#" + returnOpposite(jsonDay.centerCamImage.averagePixelColorHex)})
 }
 
 function maximizeTimeOnCamImage() {
@@ -98,9 +147,17 @@ function prepareCamImageEvents() {
 }
 
 function init() {
+	jsonDay = null;
+	jsonDays = null;
+	camImageElement = null;
+	pageTitleElement = null;
+	canvasPastElement = null;
+	canvasPostElement = null;
+	
 	var date = getParameterByName("center");
 	
-	jQuery.getJSON("index.php?json=true&center=" + date, receivedJSON);
+	jQuery.getJSON("index.php?jsonDays=true", receivedJSONDays);
+	jQuery.getJSON("index.php?jsonDay=true&center=" + date, receivedJSONDay);
 }
 
 // http://stackoverflow.com/questions/901115/get-query-string-values-in-javascript
@@ -119,5 +176,5 @@ function getParameterByName(name)
 function rangeUpdated(newValue) {
 	var daysAgo = 100 - newValue; 
 	
-	jQuery.getJSON("index.php?json=true&center=" + daysAgo + " days ago", receivedJSON);
+	jQuery.getJSON("index.php?jsonDay=true&center=" + daysAgo + " days ago", receivedJSONDay);
 }

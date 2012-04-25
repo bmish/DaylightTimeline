@@ -26,11 +26,11 @@ body {
 	margin: 0;
 }
 
-#pastDaylight {
+#canvasPast {
 	display: inline-block;
 }
 
-#postDaylight {
+#canvasPost {
 	display: inline-block;
 }
 
