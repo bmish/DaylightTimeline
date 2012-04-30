@@ -8,10 +8,14 @@ var pageTitleElement;
 var canvasDaylightElement;
 var canvasHistoryElement;
 
+var dayCanvasMap;
+
 function receivedJSONDay(data) {
 	jsonDay = data;
 	
 	updatePageTitle();
+	
+	dayCanvasMap = mapCanvasToDayUsingCompleteFill();
 	drawDaylight(jsonDay.camImages);
 }
 
@@ -35,6 +39,24 @@ function updatePageTitle() {
 	getPageTitleElement().innerText = $.format.date(jsonDay.camImages[0].date, "MMMM d, yyyy");
 }
 
+function mapCanvasToDayUsingCompleteFill() {
+	var imageCount = jsonDay.camImages.length;
+	var pixelCount = getCanvasDaylightElement().width;
+	if (imageCount == 0 || pixelCount == 0) {
+		return new Array();
+	}
+	
+	var skipAmount = imageCount / pixelCount;
+	
+	var map = new Array(pixelCount);
+	var mapIndex = 0;
+	for (var imageIndex = 0; imageIndex < imageCount; imageIndex+=skipAmount) {
+		map[mapIndex++] = jsonDay.camImages[Math.floor(imageIndex)];
+	}
+	
+	return map;
+}
+
 function drawDaylight(camImages) {
 	// Get canvas.
 	var c = getCanvasDaylightElement();
@@ -45,9 +67,9 @@ function drawDaylight(camImages) {
 	
 	// Draw rectangle for each image color.
 	ctx.clearRect(0, 0, c.width, c.height); // Clear canvas.
-	for (var i = 0; i < camImages.length; i+=2) {
-		ctx.fillStyle = "#" + camImages[i].averagePixelColorHex;
-		ctx.fillRect((i/2)*rectWidth,0,rectWidth,c.height);
+	for (var i = 0; i < dayCanvasMap.length; i++) {
+		ctx.fillStyle = "#" + dayCanvasMap[i].averagePixelColorHex;
+		ctx.fillRect(i*rectWidth,0,rectWidth,c.height);
 	}
 }
 
