@@ -4,7 +4,6 @@ require_once("classes/CamImage.php");
 require_once("classes/Command.php");
 require_once("classes/Day.php");
 require_once("classes/DB.php");
-require_once("classes/enums.php");
 require_once("classes/Util.php");
 
 // Connect to database.
