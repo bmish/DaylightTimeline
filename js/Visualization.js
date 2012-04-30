@@ -179,3 +179,7 @@ function init() {
 	jQuery.getJSON("index.php?jsonDays=true", receivedJSONDays);
 	jQuery.getJSON("index.php?jsonDay=true&date=" + date, receivedJSONDay);
 }
+
+$(document).ready(function(){
+	init();
+});
