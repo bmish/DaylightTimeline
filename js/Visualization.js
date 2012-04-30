@@ -1,5 +1,9 @@
+// Config variables:
+var SECONDS_PER_IMAGE_INDEX = 60;
+var SKIP_IMAGE_AMOUNT = 2;
 var SNAPSHOT_PROCESSED_DIR_NAME = "snapshots/processed/";
 
+// Global variables:
 var jsonDay;
 var jsonDays;
 
@@ -10,12 +14,16 @@ var canvasHistoryElement;
 
 var dayCanvasMap;
 
+var MS_PER_SECOND = 1000;
+var SECONDS_PER_DAY = 60 * 60 * 24;
+var MS_PER_DAY = SECONDS_PER_DAY * MS_PER_SECOND;
+
 function receivedJSONDay(data) {
 	jsonDay = data;
 	
 	updatePageTitle();
 	
-	dayCanvasMap = mapCanvasToDayUsingCompleteFill();
+	dayCanvasMap = mapCanvasToDayUsingTimeBuckets();
 	drawDaylight(jsonDay.camImages);
 }
 
@@ -39,19 +47,66 @@ function updatePageTitle() {
 	getPageTitleElement().innerText = $.format.date(jsonDay.camImages[0].date, "MMMM d, yyyy");
 }
 
-function mapCanvasToDayUsingCompleteFill() {
+// Stretch all the images to fill the canvas completely.
+function mapCanvasToDayUsingStretchFill() {
 	var imageCount = jsonDay.camImages.length;
-	var pixelCount = getCanvasDaylightElement().width;
-	if (imageCount == 0 || pixelCount == 0) {
+	var mapSize = getCanvasDaylightElement().width;
+	if (imageCount == 0 || mapSize == 0) {
+		return new Array();
+	}
+
+	var map = new Array(mapSize);
+	var mapIndex = 0;
+	
+	for (var imageIndex = 0; imageIndex < imageCount; imageIndex+=SKIP_IMAGE_AMOUNT) {
+		map[mapIndex++] = jsonDay.camImages[Math.floor(imageIndex)];
+	}
+	
+	return map;
+}
+
+// Plot the images in the correct canvas location based on time.
+function mapCanvasToDayUsingTimeBuckets() {
+	var imageCount = jsonDay.camImages.length;
+	var mapSize = getCanvasDaylightElement().width;
+	if (imageCount == 0 || mapSize == 0) {
 		return new Array();
 	}
 	
-	var skipAmount = imageCount / pixelCount;
-	
-	var map = new Array(pixelCount);
+	var map = new Array(mapSize);
 	var mapIndex = 0;
-	for (var imageIndex = 0; imageIndex < imageCount; imageIndex+=skipAmount) {
-		map[mapIndex++] = jsonDay.camImages[Math.floor(imageIndex)];
+	var imageIndex = 0;
+	var attemptCount = 1;
+	var errorTolerance = 0;
+	var prevDate = getDayDate(null);
+	
+	// Go through the images and store them in the correct places in the map.
+	while (imageIndex < imageCount) {
+		var rangeMinSeconds = getDaySeconds(prevDate);
+		var rangeMaxSeconds = rangeMinSeconds + SECONDS_PER_IMAGE_INDEX * attemptCount + 1 + errorTolerance;
+		var camImage = jsonDay.camImages[Math.floor(imageIndex)];
+		var date = getDateFromString(camImage.date);
+		
+		// Are we at the correct position in the map to store the image?
+		if (dateBetweenSecondsOfDay(date, rangeMinSeconds, rangeMaxSeconds)) { // Found correct time bucket for image.
+			map[mapIndex++] = camImage;
+			
+			// Move to the next time bucket.
+			prevDate = date;
+			imageIndex += SKIP_IMAGE_AMOUNT;
+			attemptCount = 1; 
+		} else { // Image not in time bucket so expand the current time bucket.
+			map[mapIndex++] = null;
+			
+			attemptCount++;
+		}	
+	}
+	
+	// Fill in tiny gaps using the previous image for approximation.
+	for (var mapIndex = 1; mapIndex < mapSize - 1; mapIndex++) { // Ignore first and last space.
+		if (!map[mapIndex] && map[mapIndex - 1] && map[mapIndex + 1]) {
+			map[mapIndex] = map[mapIndex - 1];
+		}
 	}
 	
 	return map;
@@ -68,8 +123,10 @@ function drawDaylight(camImages) {
 	// Draw rectangle for each image color.
 	ctx.clearRect(0, 0, c.width, c.height); // Clear canvas.
 	for (var i = 0; i < dayCanvasMap.length; i++) {
-		ctx.fillStyle = "#" + dayCanvasMap[i].averagePixelColorHex;
-		ctx.fillRect(i*rectWidth,0,rectWidth,c.height);
+		if (dayCanvasMap[i]) {
+			ctx.fillStyle = "#" + dayCanvasMap[i].averagePixelColorHex;
+			ctx.fillRect(i*rectWidth,0,rectWidth,c.height);
+		}
 	}
 }
 
