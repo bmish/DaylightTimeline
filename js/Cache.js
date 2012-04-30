@@ -29,3 +29,11 @@ function getCanvasHistoryElement() {
 	
 	return canvasHistoryElement;
 }
+
+function getCamImageElement() {
+	if (!camImageElement) {
+		camImageElement = document.getElementById("camImage");
+	}
+	
+	return camImageElement;
+}

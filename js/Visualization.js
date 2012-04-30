@@ -11,6 +11,7 @@ var camImageElement;
 var pageTitleElement;
 var canvasDaylightElement;
 var canvasHistoryElement;
+var camImageElement;
 
 var dayCanvasMap;
 
@@ -45,7 +46,27 @@ function setupDaylightCanvasHoverEvent() {
 		$("#camImageHoverBox")
 			.css("top",(e.pageY - camImageHoverBoxOffsetX) + "px")
 			.css("left",(e.pageX + camImageHoverBoxOffsetY) + "px");
+		
+		var mapIndex = getMapIndexFromMouseX(e.pageX);	
+		updateCamImage(mapIndex);
 	});
+}
+
+function getMapIndexFromMouseX(mouseX) {
+	return mouseX - getCanvasDaylightElement().offsetLeft;
+}
+
+function updateCamImage(mapIndex) {
+	if (!dayCanvasMap[mapIndex]) {
+		$("#camImageHoverBox").hide();
+		return;
+	} else {
+		$("#camImageHoverBox").show();
+	}
+	
+	var im = new Image();
+	im.src = SNAPSHOT_PROCESSED_DIR_NAME + dayCanvasMap[mapIndex].filename;
+	getCamImageElement().src = im.src;
 }
 
 function updateSliderRange() {
