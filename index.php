@@ -50,6 +50,8 @@ DB::close();
 		<input type="range" id="slider" min="<?php echo $SLIDER_MIN; ?>" max="<?php echo $SLIDER_MAX; ?>" value="<?php echo $SLIDER_VALUE; ?>" step="<?php echo $SLIDER_STEP; ?>" onchange="rangeUpdated(this.value)" />
 		<canvas id="canvasHistory" width="<?php echo $CANVAS_HISTORY_WIDTH; ?>" height="<?php echo $CANVAS_HISTORY_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 	</div>
+	<div id="camImageHoverBox">Cam image goes here
+	</div>
 </div>
 </body>
 </html>

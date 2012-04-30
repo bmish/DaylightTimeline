@@ -18,6 +18,9 @@ var MS_PER_SECOND = 1000;
 var SECONDS_PER_DAY = 60 * 60 * 24;
 var MS_PER_DAY = SECONDS_PER_DAY * MS_PER_SECOND;
 
+var camImageHoverBoxOffsetX = 10;
+var camImageHoverBoxOffsetY = 20;
+
 function receivedJSONDay(data) {
 	jsonDay = data;
 	
@@ -25,6 +28,7 @@ function receivedJSONDay(data) {
 	
 	dayCanvasMap = mapCanvasToDayUsingTimeBuckets();
 	drawDaylight(jsonDay.camImages);
+	setupDaylightCanvasHoverEvent();
 }
 
 function receivedJSONDays(data) {
@@ -32,6 +36,16 @@ function receivedJSONDays(data) {
 	
 	updateSliderRange();
 	drawHistory(jsonDays.days);
+}
+
+// http://cssglobe.com/post/1695/easiest-tooltip-and-image-preview-using-jquery
+function setupDaylightCanvasHoverEvent() {
+	$("#canvasDaylight").hover(function (e) { $("#camImageHoverBox").show(); }, function () { $("#camImageHoverBox").hide(); });
+	$("#canvasDaylight").mousemove(function (e) {
+		$("#camImageHoverBox")
+			.css("top",(e.pageY - camImageHoverBoxOffsetX) + "px")
+			.css("left",(e.pageX + camImageHoverBoxOffsetY) + "px");
+	});
 }
 
 function updateSliderRange() {
