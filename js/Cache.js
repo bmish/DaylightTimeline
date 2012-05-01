@@ -45,3 +45,11 @@ function getCamImageHeaderElement() {
 	
 	return camImageHeaderElement;
 }
+
+function getDaylightRowElement() {
+	if (!daylightRowElement) {
+		daylightRowElement = document.getElementById("daylightRow");
+	}
+	
+	return daylightRowElement;
+}

@@ -14,6 +14,7 @@ var canvasDaylightElement;
 var canvasHistoryElement;
 var camImageElement;
 var camImageHeaderElement;
+var daylightRowElement;
 
 var dayCanvasMap;
 
@@ -61,11 +62,11 @@ function setupDaylightCanvasHoverEvent() {
 }
 
 function enoughRoomForHoverBoxOnRight(mouseX) {
-	return window.screen.availWidth - mouseX > CAM_IMAGE_WIDTH + camImageHoverBoxOffsetX + 30;
+	return window.innerWidth - mouseX > CAM_IMAGE_WIDTH + camImageHoverBoxOffsetX;
 }
 
 function getMapIndexFromMouseX(mouseX) {
-	return mouseX - getCanvasDaylightElement().offsetLeft;
+	return mouseX - getDaylightRowElement().offsetLeft;
 }
 
 function updateCamImage(mapIndex) {
@@ -229,6 +230,7 @@ function init() {
 	canvasDaylightElement = null;
 	canvasHistoryElement = null;
 	camImageHeaderElement = null;
+	daylightRowElement = null;
 	
 	var date = getParameterByName("date");
 	

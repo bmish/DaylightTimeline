@@ -1,3 +1,12 @@
+#wrapper {
+	font-family: "Helvetica Neue";
+	width: 100%;
+}
+
+body {
+	margin: 0;
+}
+
 #pageTitle {
 	text-align: left;
 	font-size: 26pt;
@@ -14,16 +23,12 @@
 	opacity: 0.80;
 	color: white;
 	position: absolute;
-	top: 26px;
-	left: 120px;
-}
-#wrapper {
-	font-family: "Helvetica Neue";
-	width: 100%;
+	top: 2px;
+	left: 8px;
 }
 
-body {
-	margin: 0;
+#canvasAndHeaderContainer {
+ 	position: relative;
 }
 
 #daylightRow {
