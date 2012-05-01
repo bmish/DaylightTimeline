@@ -38,11 +38,11 @@ DB::close();
 </head>
 <body>
 <div id="wrapper">
-	<div id="header">
-		<div id="pageTitle"></div>
-		<div id="pageSubtitle"><?php echo $DISPLAY_CAM_LOCATION_NAME; ?></div>
-	</div>
 	<div id="daylightRow">
+		<div id="header">
+			<div id="pageTitle"></div>
+			<div id="pageSubtitle"><?php echo $DISPLAY_CAM_LOCATION_NAME; ?></div>
+		</div>
 		<canvas id="canvasDaylight" width="<?php echo $CANVAS_DAYLIGHT_WIDTH; ?>" height="<?php echo $CAM_IMAGE_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 	</div>
 	<div id="historyRow">
