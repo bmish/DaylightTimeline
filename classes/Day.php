@@ -34,6 +34,17 @@ class Day {
 		return $instance;
 	}
 	
+	private static function fromDate($date) {
+		$query = "SELECT * FROM days WHERE date = '".date("Y-m-d", $date)."' LIMIT 1";
+		$result = mysql_query($query);
+		if (!$result || mysql_num_rows($result) == 0) {
+			return null;
+		}
+		
+		$row = mysql_fetch_array($result);
+		return Day::fromRow($row);
+	}
+	
 	private function foundCamImages() {
 		return $this->averageDaylightPixelColorHex != "";
 	}
@@ -159,6 +170,19 @@ class Day {
 		$jsonArray = Util::jsonSerializeArray($days);
 		
 		return $jsonArray;
+	}
+	
+	public static function getJSONObjectOfDay($date) {
+		if (!$date) {
+			$date = CamImage::getLastCamImageDate();
+		}
+		
+		$day = Day::fromDate($date);
+		if (!$day) {
+			return null;
+		}
+		
+		return $day->jsonSerialize();
 	}
 }
 ?>
