@@ -39,3 +39,23 @@ function getDaySeconds(dateExact) {
 
 	return milliseconds / MS_PER_SECOND;
 }
+
+function dateToAMPMTime(date) {
+	var hours = date.getHours();
+	var minutes = date.getMinutes();
+	
+	var ampm = "am";
+	if (hours >= 12) {
+		ampm = "pm";
+		hours -= 12;
+	}
+	if (hours == 0) {
+		hours = 12;
+	}
+	
+	if (minutes < 10) {
+		minutes = "0" + minutes;
+	}
+	
+	return hours + ":" + minutes + ampm;
+}

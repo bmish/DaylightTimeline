@@ -37,3 +37,11 @@ function getCamImageElement() {
 	
 	return camImageElement;
 }
+
+function getCamImageHeaderElement() {
+	if (!camImageHeaderElement) {
+		camImageHeaderElement = document.getElementById("camImageHeader");
+	}
+	
+	return camImageHeaderElement;
+}

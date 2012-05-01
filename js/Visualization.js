@@ -12,6 +12,7 @@ var pageTitleElement;
 var canvasDaylightElement;
 var canvasHistoryElement;
 var camImageElement;
+var camImageHeaderElement;
 
 var dayCanvasMap;
 
@@ -67,6 +68,14 @@ function updateCamImage(mapIndex) {
 	var im = new Image();
 	im.src = SNAPSHOT_PROCESSED_DIR_NAME + dayCanvasMap[mapIndex].filename;
 	getCamImageElement().src = im.src;
+	
+	// Update cam image header text and color.
+	updateCamImageHeader(mapIndex);
+}
+
+function updateCamImageHeader(mapIndex) {
+	getCamImageHeaderElement().innerText = dateToAMPMTime(getDateFromString(dayCanvasMap[mapIndex].date));
+	$("#camImageHeader").css({"color": "#" + returnOpposite(dayCanvasMap[mapIndex].averagePixelColorHex)});
 }
 
 function updateSliderRange() {
@@ -208,6 +217,7 @@ function init() {
 	pageTitleElement = null;
 	canvasDaylightElement = null;
 	canvasHistoryElement = null;
+	camImageHeaderElement = null;
 	
 	var date = getParameterByName("date");
 	

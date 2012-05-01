@@ -50,6 +50,7 @@ DB::close();
 		<canvas id="canvasHistory" width="<?php echo $CANVAS_HISTORY_WIDTH; ?>" height="<?php echo $CANVAS_HISTORY_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
 	</div>
 	<div id="camImageHoverBox">
+		<div id="camImageHeader"></div>
 		<img id="camImage" />
 	</div>
 </div>

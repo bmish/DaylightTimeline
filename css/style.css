@@ -50,9 +50,13 @@ body {
 
 #camImageHoverBox {
 	position:absolute;
-	border:1px solid #333;
-	background:#f7f5d1;
-	padding:2px 5px;
-	color:#333;
 	display:none;
+}
+
+#camImageHeader {
+	position: absolute;
+	width: 100%;
+	font-size: 16px;
+	top: 2px;
+	left: 2px;
 }
