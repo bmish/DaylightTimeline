@@ -56,6 +56,7 @@ class Command {
 
 		// Build JSON object.
 		$obj = array();
+		$obj["day"] = Day::getJSONObjectOfDay(strtotime($_GET["date"]));
 		$obj["camImages"] = CamImage::getJSONObjectOfCamImages(strtotime($_GET["date"]));
 		$obj["duration"] = Util::calculateLoadingDuration($timeStart);
 
