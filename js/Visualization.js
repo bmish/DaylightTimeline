@@ -1,6 +1,7 @@
 // Config variables:
 var SECONDS_PER_IMAGE_INDEX = 60;
 var SKIP_IMAGE_AMOUNT = 2;
+var CAM_IMAGE_WIDTH = 640;
 var SNAPSHOT_PROCESSED_DIR_NAME = "snapshots/processed/";
 
 // Global variables:
@@ -44,13 +45,23 @@ function receivedJSONDays(data) {
 function setupDaylightCanvasHoverEvent() {
 	$("#canvasDaylight").hover(function (e) { $("#camImageHoverBox").show(); }, function () { $("#camImageHoverBox").hide(); });
 	$("#canvasDaylight").mousemove(function (e) {
-		$("#camImageHoverBox")
-			.css("top",(e.pageY - camImageHoverBoxOffsetX) + "px")
-			.css("left",(e.pageX + camImageHoverBoxOffsetY) + "px");
+		if (!enoughRoomForHoverBoxOnRight(e.pageX)) {
+			$("#camImageHoverBox")
+				.css("top",(e.pageY - camImageHoverBoxOffsetX) + "px")
+				.css("left",(e.pageX - camImageHoverBoxOffsetY - CAM_IMAGE_WIDTH) + "px");
+		} else {
+			$("#camImageHoverBox")
+				.css("top",(e.pageY - camImageHoverBoxOffsetX) + "px")
+				.css("left",(e.pageX + camImageHoverBoxOffsetY) + "px");
+		}
 		
 		var mapIndex = getMapIndexFromMouseX(e.pageX);	
 		updateCamImage(mapIndex);
 	});
+}
+
+function enoughRoomForHoverBoxOnRight(mouseX) {
+	return window.screen.availWidth - mouseX > CAM_IMAGE_WIDTH + camImageHoverBoxOffsetX + 30;
 }
 
 function getMapIndexFromMouseX(mouseX) {
