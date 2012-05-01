@@ -53,3 +53,11 @@ function getDaylightRowElement() {
 	
 	return daylightRowElement;
 }
+
+function getCanvasLabelElement() {
+	if (!canvasLabelElement) {
+		canvasLabelElement = document.getElementById("canvasLabel");
+	}
+	
+	return canvasLabelElement;
+}

@@ -31,11 +31,10 @@ body {
  	position: relative;
 }
 
-#daylightRow {
+#daylightRow, #labelRow {
 	width: 1440px;
 	margin-left: auto;
 	margin-right: auto;
-	margin-top: 20px;
 	font-size: 0;
 }
 

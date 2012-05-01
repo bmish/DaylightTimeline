@@ -15,6 +15,7 @@ var canvasHistoryElement;
 var camImageElement;
 var camImageHeaderElement;
 var daylightRowElement;
+var canvasLabelElement;
 
 var dayCanvasMap;
 
@@ -33,6 +34,7 @@ function receivedJSONDay(data) {
 	dayCanvasMap = mapCanvasToDayUsingTimeBuckets();
 	drawDaylight(jsonDay.camImages);
 	setupDaylightCanvasHoverEvent();
+	labelSunriseSunset();
 }
 
 function receivedJSONDays(data) {
@@ -59,6 +61,34 @@ function setupDaylightCanvasHoverEvent() {
 		var mapIndex = getMapIndexFromMouseX(e.pageX);	
 		updateCamImage(mapIndex);
 	});
+}
+
+function labelSunriseSunset() {
+	// Get canvas.
+	var c = getCanvasLabelElement();
+	var ctx = c.getContext("2d");
+	ctx.clearRect(0, 0, c.width, c.height); // Clear canvas.
+	
+	var sunriseDate = getDateFromString(jsonDay.day.date + " " + jsonDay.day.sunriseTime);
+	var sunsetDate = getDateFromString(jsonDay.day.date + " " + jsonDay.day.sunsetTime);
+	var sunriseTimeStringPretty = dateToAMPMTime(sunriseDate);
+	var sunsetTimeStringPretty = dateToAMPMTime(sunsetDate);
+	
+	var sunriseX = getXPositionFromDate(sunriseDate, c.width);
+	var sunsetX = getXPositionFromDate(sunsetDate, c.width);
+	
+	ctx.fillText(sunriseTimeStringPretty, sunriseX, 40);
+	ctx.fillText(sunsetTimeStringPretty, sunsetX, 40);
+}
+
+function getXPositionFromDate(date, canvasWidth) {
+	var seconds = getDaySeconds(date);
+	
+	var fraction = seconds / SECONDS_PER_DAY;
+	
+	var x = Math.round(fraction * canvasWidth);
+	
+	return x;
 }
 
 function enoughRoomForHoverBoxOnRight(mouseX) {
@@ -231,6 +261,7 @@ function init() {
 	canvasHistoryElement = null;
 	camImageHeaderElement = null;
 	daylightRowElement = null;
+	canvasLabelElement = null;
 	
 	var date = getParameterByName("date");
 	

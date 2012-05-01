@@ -38,6 +38,9 @@ DB::close();
 </head>
 <body>
 <div id="wrapper">
+	<div id="labelRow">
+		<canvas id="canvasLabel" width="<?php echo $CANVAS_DAYLIGHT_WIDTH; ?>" height="<?php echo $CANVAS_LABEL_HEIGHT; ?>">This text is displayed if your browser does not support HTML5 Canvas.</canvas>
+	</div>
 	<div id="daylightRow">
 		<div id="canvasAndHeaderContainer">
 			<div id="header">
